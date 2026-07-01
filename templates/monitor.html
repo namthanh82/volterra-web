@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-bg-wrap">
+  <div class="page-bg page-bg--monitor"></div>
+  <div class="page-overlay page-overlay--monitor"></div>
+
+  <div class="container page-container">
+    <div class="two-col" style="align-items:stretch; gap: 18px; min-height: calc(100vh - 82px); margin-left: 0;">
+      {% include 'partials/sidebar.html' %}
+
+      <main class="app-main">
+        <section class="card" style="background: linear-gradient(180deg, rgba(214,243,241,0.98) 0%, rgba(255,255,255,0.98) 68%, rgba(244,251,250,0.98) 100%);">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap: 16px; flex-wrap:wrap; margin-bottom: 14px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div>
+                <h1 class="title" style="margin:0; font-size:24px;">{{ 'Monitor' if lang_code == 'en' else 'Giám sát' }}</h1>
+                <div class="muted" style="margin-top:4px; font-size:14px;">{{ 'Site, solar, and EV charging performance overview' if lang_code == 'en' else 'Tổng quan dữ liệu site, năng lượng mặt trời và sạc EV' }}</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn ghost" type="button" style="padding:9px 14px; border-radius:10px;">{{ 'Chart Config' if lang_code == 'en' else 'Cấu hình biểu đồ' }}</button>
+              <button class="btn ghost" type="button" style="padding:9px 14px; border-radius:10px;">{{ 'Download' if lang_code == 'en' else 'Tải xuống' }}</button>
+            </div>
+          </div>
+
+          <div style="display:grid; gap:14px;">
+            <div class="card monitor-chart-card" data-chart="load" style="background:#fff; border:1px solid #d7e6ee; border-radius:20px; padding:16px;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+                <div>
+                  <div style="font-weight:800; font-size:20px; color:#18313d;">{{ 'Electrical Load' if lang_code == 'en' else 'Điện phụ tải' }}</div>
+                  <div class="muted" style="font-size:13px; margin-top:3px;">{{ 'Hover or tap a point to inspect values' if lang_code == 'en' else 'Di chuột hoặc chạm vào điểm để xem thông số' }}</div>
+                </div>
+                <div class="badge" style="background:#eef7fb; color:#236d83; border:1px solid #d7e6ee;">06/01 - 06/06</div>
+              </div>
+              <div style="position:relative;">
+                <svg id="monitor-load-chart" viewBox="0 0 900 340" width="100%" height="340" preserveAspectRatio="none" style="display:block; touch-action:none; user-select:none;">
+                  <defs>
+                    <linearGradient id="siteArea" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#2b8ca8" stop-opacity="0.25" />
+                      <stop offset="100%" stop-color="#2b8ca8" stop-opacity="0.03" />
+                    </linearGradient>
+                  </defs>
+                  <g stroke="#e7eef2" stroke-width="1">
+                    <line x1="70" y1="40" x2="760" y2="40"/>
+                    <line x1="70" y1="90" x2="760" y2="90"/>
+                    <line x1="70" y1="140" x2="760" y2="140"/>
+                    <line x1="70" y1="190" x2="760" y2="190"/>
+                    <line x1="70" y1="240" x2="760" y2="240"/>
+                    <line x1="70" y1="290" x2="760" y2="290"/>
+                  </g>
+                  <text x="10" y="46" font-size="16" fill="#333">800 kW</text>
+                  <text x="10" y="146" font-size="16" fill="#333">300 kW</text>
+                  <text x="10" y="246" font-size="16" fill="#333">0kW</text>
+                  <text x="10" y="296" font-size="16" fill="#333">-300kW</text>
+                  <text x="840" y="46" font-size="16" fill="#333">100%</text>
+                  <text x="840" y="146" font-size="16" fill="#333">60%</text>
+                  <text x="840" y="246" font-size="16" fill="#333">20%</text>
+                  <path d="M70 250 L120 246 L170 238 L220 195 L270 210 L320 170 L370 180 L420 140 L470 165 L520 105 L570 140 L620 90 L670 122 L720 170 L760 145 L760 290 L70 290 Z" fill="url(#siteArea)"/>
+                  <path class="series-line" data-series="Facility Load" d="M70 250 L120 246 L170 238 L220 195 L270 210 L320 170 L370 180 L420 140 L470 165 L520 105 L570 140 L620 90 L670 122 L720 170 L760 145" fill="none" stroke="#2b8ca8" stroke-width="3" stroke-dasharray="0" stroke-linecap="round"/>
+                  <circle cx="70" cy="250" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="120" cy="246" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="170" cy="238" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="220" cy="195" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="270" cy="210" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="320" cy="170" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="370" cy="180" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="420" cy="140" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="470" cy="165" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="520" cy="105" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="570" cy="140" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="620" cy="90" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="670" cy="122" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="720" cy="170" r="3.2" fill="#2b8ca8" opacity="0.95"/><circle cx="760" cy="145" r="3.2" fill="#2b8ca8" opacity="0.95"/>
+                  <path class="series-line" data-series="Solar Production" d="M70 238 L120 224 L170 232 L220 175 L270 194 L320 148 L370 162 L420 128 L470 148 L520 95 L570 122 L620 76 L670 116 L720 148 L760 132" fill="none" stroke="#14a67b" stroke-width="3" stroke-dasharray="3 7" stroke-linecap="round"/>
+                  <circle cx="70" cy="238" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="120" cy="224" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="170" cy="232" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="220" cy="175" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="270" cy="194" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="320" cy="148" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="370" cy="162" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="420" cy="128" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="470" cy="148" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="520" cy="95" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="570" cy="122" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="620" cy="76" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="670" cy="116" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="720" cy="148" r="3.2" fill="#14a67b" opacity="0.95"/><circle cx="760" cy="132" r="3.2" fill="#14a67b" opacity="0.95"/>
+                  <path class="series-line" data-series="Battery SOC" d="M70 40 L120 72 L170 180 L220 45 L270 250 L320 70 L370 180 L420 35 L470 190 L520 78 L570 230 L620 50 L670 210 L720 120 L760 260" fill="none" stroke="#ff6a21" stroke-width="3" stroke-dasharray="0"/>
+                  <circle cx="70" cy="40" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="120" cy="72" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="170" cy="180" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="220" cy="45" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="270" cy="250" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="320" cy="70" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="370" cy="180" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="420" cy="35" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="470" cy="190" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="520" cy="78" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="570" cy="230" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="620" cy="50" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="670" cy="210" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="720" cy="120" r="3.2" fill="#ff6a21" opacity="0.95"/><circle cx="760" cy="260" r="3.2" fill="#ff6a21" opacity="0.95"/>
+                  <path class="series-line" data-series="Battery Power" d="M70 280 L120 275 L170 268 L220 260 L270 255 L320 258 L370 240 L420 225 L470 235 L520 220 L570 208 L620 198 L670 210 L720 222 L760 230" fill="none" stroke="#5f8d83" stroke-width="3"/>
+                  <circle cx="70" cy="280" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="120" cy="275" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="170" cy="268" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="220" cy="260" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="270" cy="255" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="320" cy="258" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="370" cy="240" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="420" cy="225" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="470" cy="235" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="520" cy="220" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="570" cy="208" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="620" cy="198" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="670" cy="210" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="720" cy="222" r="3.2" fill="#5f8d83" opacity="0.95"/><circle cx="760" cy="230" r="3.2" fill="#5f8d83" opacity="0.95"/>
+                  <path class="series-line" data-series="EV Load" d="M70 280 L120 276 L170 270 L220 258 L270 250 L320 265 L370 240 L420 228 L470 240 L520 232 L570 258 L620 230 L670 245 L720 255 L760 248" fill="none" stroke="#ffb21d" stroke-width="3" stroke-dasharray="3 7" stroke-linecap="round"/>
+                  <circle cx="70" cy="280" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="120" cy="276" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="170" cy="270" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="220" cy="258" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="270" cy="250" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="320" cy="265" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="370" cy="240" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="420" cy="228" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="470" cy="240" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="520" cy="232" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="570" cy="258" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="620" cy="230" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="670" cy="245" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="720" cy="255" r="3.2" fill="#ffb21d" opacity="0.95"/><circle cx="760" cy="248" r="3.2" fill="#ffb21d" opacity="0.95"/>
+                  <line id="load-crosshair" x1="420" y1="40" x2="420" y2="290" stroke="#c66" stroke-width="2" opacity="0.55"/>
+                  <g id="load-points" style="cursor:crosshair;">
+                    <circle class="load-point" data-label="6/01" data-values='{"Solar Production":"312.0 kW","Facility Load":"278.0 kW","EV Load":"49.0 kW","Battery SOC":"78.0%","Battery Power":"-32.0 kW"}' cx="70" cy="238" r="7" fill="#14a67b" opacity="0.001"/>
+                    <circle class="load-point" data-label="6/02" data-values='{"Solar Production":"324.0 kW","Facility Load":"250.0 kW","EV Load":"63.0 kW","Battery SOC":"22.0%","Battery Power":"-18.0 kW"}' cx="170" cy="232" r="7" fill="#14a67b" opacity="0.001"/>
+                    <circle class="load-point" data-label="6/03" data-values='{"Solar Production":"371.0 kW","Facility Load":"182.0 kW","EV Load":"84.0 kW","Battery SOC":"48.0%","Battery Power":"12.0 kW"}' cx="270" cy="194" r="7" fill="#14a67b" opacity="0.001"/>
+                    <circle class="load-point" data-label="6/04" data-values='{"Solar Production":"408.0 kW","Facility Load":"190.0 kW","EV Load":"77.0 kW","Battery SOC":"61.0%","Battery Power":"24.0 kW"}' cx="420" cy="128" r="7" fill="#14a67b" opacity="0.001"/>
+                    <circle class="load-point" data-label="6/05" data-values='{"Solar Production":"450.0 kW","Facility Load":"205.0 kW","EV Load":"69.0 kW","Battery SOC":"55.0%","Battery Power":"30.0 kW"}' cx="520" cy="95" r="7" fill="#14a67b" opacity="0.001"/>
+                    <circle class="load-point" data-label="6/06" data-values='{"Solar Production":"389.0 kW","Facility Load":"176.0 kW","EV Load":"71.0 kW","Battery SOC":"31.0%","Battery Power":"16.0 kW"}' cx="760" cy="132" r="7" fill="#14a67b" opacity="0.001"/>
+                  </g>
+                  <rect id="load-hitbox" x="70" y="40" width="690" height="250" fill="transparent" style="cursor:crosshair;"/>
+                  <text x="84" y="325" font-size="16" fill="#333">6/01</text>
+                  <text x="205" y="325" font-size="16" fill="#333">6/02</text>
+                  <text x="325" y="325" font-size="16" fill="#333">6/03</text>
+                  <text x="445" y="325" font-size="16" fill="#333">6/04</text>
+                  <text x="565" y="325" font-size="16" fill="#333">6/05</text>
+                  <text x="685" y="325" font-size="16" fill="#333">6/06</text>
+                </svg>
+                <div id="load-tooltip" style="position:absolute; display:none; left:0; top:0; transform:translate(12px, 12px); min-width: 245px; background:#fff; border:1px solid #d7d7d7; border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,0.14); padding:12px 14px; pointer-events:none; z-index:4;">
+                  <div style="font-size:16px; font-weight:800; color:#333; line-height:1.1; margin-bottom:4px;">Power Totals</div>
+                  <div id="load-tooltip-date" style="font-size:13px; font-weight:700; color:#666; margin-bottom:10px;">Fri 6/03 @ 3:00 PM</div>
+                  <div style="height:1px; background:#e5e5e5; margin-bottom:10px;"></div>
+                  <div id="load-tooltip-body" style="display:grid; gap:7px; font-size:13px; color:#222;"></div>
+                </div>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:18px; margin-top:8px; padding-top:14px; border-top:1px solid #d7e6ee;">
+                <span class="badge" style="background:#fff6dd; color:#8d6518; border:1px solid #f0d08b;">SOLAR PRODUCTION (kW)</span>
+                <span class="badge" style="background:#e6f8f6; color:#236d83; border:1px solid #bfe2de;">FACILITY LOAD (kW)</span>
+                <span class="badge" style="background:#e8f1ff; color:#1f63c8; border:1px solid #bfd4f6;">EV LOAD (kW)</span>
+                <span class="badge" style="background:#ffeede; color:#ff6a21; border:1px solid #ffd0ae;">BATTERY SOC (kW)</span>
+                <span class="badge" style="background:#edf6f2; color:#5f8d83; border:1px solid #cfe4df;">BATTERY POWER (kW)</span>
+              </div>
+            </div>
+
+            <div class="grid grid-2" style="grid-template-columns:1fr 1fr; gap:14px;">
+              <div class="card monitor-chart-card" data-chart="solar" style="background:#fff; border:1px solid #d7e6ee; border-radius:20px; padding:16px; min-height:340px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+                  <div>
+                    <div style="font-weight:800; font-size:20px; color:#18313d;">{{ 'Solar' if lang_code == 'en' else 'Năng lượng mặt trời' }}</div>
+                    <div class="muted" style="font-size:13px; margin-top:3px;">{{ 'Move across the chart to inspect points' if lang_code == 'en' else 'Di chuột qua biểu đồ để xem điểm dữ liệu' }}</div>
+                  </div>
+                  <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <button class="btn ghost" type="button" style="padding:8px 12px; border-radius:10px;">06/01-06/06</button>
+                    <button class="btn ghost" type="button" style="padding:8px 12px; border-radius:10px;">Custom</button>
+                  </div>
+                </div>
+                <div style="position:relative;">
+                <svg id="solar-chart" viewBox="0 0 800 260" width="100%" height="260" preserveAspectRatio="none" style="display:block; touch-action:none; user-select:none;">
+                  <g stroke="#e7eef2" stroke-width="1">
+                    <line x1="40" y1="30" x2="760" y2="30"/>
+                    <line x1="40" y1="80" x2="760" y2="80"/>
+                    <line x1="40" y1="130" x2="760" y2="130"/>
+                    <line x1="40" y1="180" x2="760" y2="180"/>
+                    <line x1="40" y1="230" x2="760" y2="230"/>
+                  </g>
+                  <text x="10" y="35" font-size="15" fill="#333">600 kW</text>
+                  <text x="10" y="135" font-size="15" fill="#333">0kW</text>
+                  <text x="10" y="235" font-size="15" fill="#333">-200kW</text>
+                  <path class="series-line" data-series="Solar Production" d="M40 190 L100 188 L160 160 L220 140 L280 110 L340 120 L400 150 L460 175 L520 165 L580 135 L640 120 L700 150 L760 190" fill="none" stroke="#2b8ca8" stroke-width="3"/>
+                  <path class="series-line" data-series="Net Solar Load" d="M40 200 L100 190 L160 172 L220 150 L280 120 L340 98 L400 90 L460 110 L520 135 L580 155 L640 168 L700 176 L760 190" fill="none" stroke="#f2b21a" stroke-width="3"/>
+                  <circle class="chart-point" data-label="1PM" data-values='{"Solar Production":"245.0 kW","Net Solar Load":"112.0 kW"}' cx="220" cy="150" r="8" fill="#f2b21a" opacity="0.001"/>
+                  <circle id="solar-active-point" cx="220" cy="150" r="8" fill="#fff" stroke="#f2b21a" stroke-width="3" style="display:none; pointer-events:none;"/>
+                  <circle cx="220" cy="150" r="6" fill="#f2b21a" />
+                  <circle cx="220" cy="150" r="12" fill="none" stroke="#f2b21a" opacity="0.3"/>
+                  <text x="70" y="248" font-size="15" fill="#333">9AM</text>
+                  <text x="160" y="248" font-size="15" fill="#333">11AM</text>
+                  <text x="250" y="248" font-size="15" fill="#333">1PM</text>
+                  <text x="340" y="248" font-size="15" fill="#333">3PM</text>
+                  <text x="430" y="248" font-size="15" fill="#333">5PM</text>
+                  <text x="520" y="248" font-size="15" fill="#333">7PM</text>
+                  <text x="610" y="248" font-size="15" fill="#333">9PM</text>
+                </svg>
+                <div id="solar-tooltip" style="position:absolute; display:none; left:0; top:0; transform:translate(12px, 12px); min-width:220px; background:#fff; border:1px solid #d7d7d7; border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,0.14); padding:12px 14px; pointer-events:none; z-index:4;">
+                  <div style="font-size:16px; font-weight:800; color:#333; line-height:1.1; margin-bottom:4px;">Solar Details</div>
+                  <div id="solar-tooltip-date" style="font-size:13px; font-weight:700; color:#666; margin-bottom:10px;">1PM</div>
+                  <div style="height:1px; background:#e5e5e5; margin-bottom:10px;"></div>
+                  <div id="solar-tooltip-body" style="display:grid; gap:7px; font-size:13px; color:#222;"></div>
+                </div>
+                </div>
+                <div style="display:flex; justify-content:center; gap:18px; flex-wrap:wrap; margin-top:10px; padding-top:14px; border-top:1px solid #d7e6ee;">
+                  <span class="badge" style="background:#fff6dd; color:#8d6518; border:1px solid #f0d08b;">SOLAR PRODUCTION (kW)</span>
+                  <span class="badge" style="background:#e8f1ff; color:#1f63c8; border:1px solid #bfd4f6;">NET SOLAR LOAD (kW)</span>
+                </div>
+              </div>
+
+              <div class="card monitor-chart-card" data-chart="ev" style="background:#fff; border:1px solid #d7e6ee; border-radius:20px; padding:16px; min-height:340px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+                  <div>
+                    <div style="font-weight:800; font-size:20px; color:#18313d;">{{ 'EV Charging' if lang_code == 'en' else 'Sạc EV' }}</div>
+                    <div class="muted" style="font-size:13px; margin-top:4px;">{{ 'Sessions, Kilowatt Hours — 30 Days' if lang_code == 'en' else 'Phiên sạc, Kilowatt giờ — 30 ngày' }}</div>
+                  </div>
+                  <button class="btn ghost" type="button" style="padding:8px 12px; border-radius:10px;">{{ 'View Reporting' if lang_code == 'en' else 'Xem báo cáo' }}</button>
+                </div>
+                <svg id="ev-chart" viewBox="0 0 860 300" width="100%" height="300" preserveAspectRatio="none" style="display:block; touch-action:none; user-select:none;">
+                  <g stroke="#e7eef2" stroke-width="1">
+                    <line x1="60" y1="30" x2="790" y2="30"/>
+                    <line x1="60" y1="80" x2="790" y2="80"/>
+                    <line x1="60" y1="130" x2="790" y2="130"/>
+                    <line x1="60" y1="180" x2="790" y2="180"/>
+                    <line x1="60" y1="230" x2="790" y2="230"/>
+                  </g>
+                  <text x="10" y="35" font-size="15" fill="#333">75</text>
+                  <text x="8" y="95" font-size="15" fill="#333">60</text>
+                  <text x="8" y="155" font-size="15" fill="#333">45</text>
+                  <text x="8" y="215" font-size="15" fill="#333">30</text>
+                  <text x="8" y="275" font-size="15" fill="#333">0</text>
+                  <text x="810" y="35" font-size="15" fill="#333">2000 kWh</text>
+                  <text x="810" y="95" font-size="15" fill="#333">1600 kWh</text>
+                  <text x="810" y="155" font-size="15" fill="#333">1200 kWh</text>
+                  <text x="810" y="215" font-size="15" fill="#333">800 kWh</text>
+                  <text x="810" y="275" font-size="15" fill="#333">0 kWh</text>
+                  <path class="series-line" data-series="Started Sessions" d="M110 120 L180 70 L250 110 L320 150 L390 180 L460 150 L530 110 L600 140 L670 190" fill="none" stroke="#163d92" stroke-width="3"/>
+                  <path class="series-line" data-series="Completed Sessions" d="M110 120 L180 110 L250 120 L320 125 L390 130 L460 124 L530 100 L600 105 L670 130" fill="#f6b21d" opacity="0.6"/>
+                  <path class="series-line" data-series="kWh Delivered" d="M110 122 L180 108 L250 118 L320 128 L390 138 L460 134 L530 120 L600 112 L670 136" fill="#cfcfcf" opacity="0.7"/>
+                  <circle class="chart-point" data-label="Jun 3" data-values='{"Started Sessions":"33","Completed Sessions":"22","kWh Delivered":"1460 kWh"}' cx="390" cy="180" r="8" fill="#163d92" opacity="0.001"/>
+                  <circle id="ev-active-point" cx="390" cy="180" r="8" fill="#fff" stroke="#163d92" stroke-width="3" style="display:none; pointer-events:none;"/>
+                  <circle cx="180" cy="70" r="6" fill="#163d92"/>
+                  <circle cx="390" cy="180" r="6" fill="#163d92"/>
+                  <circle cx="600" cy="140" r="6" fill="#163d92"/>
+                  <text x="120" y="276" font-size="15" fill="#333">Jun 1</text>
+                  <text x="250" y="276" font-size="15" fill="#333">Jun 2</text>
+                  <text x="380" y="276" font-size="15" fill="#333">Jun 3</text>
+                  <text x="510" y="276" font-size="15" fill="#333">Jun 4</text>
+                  <text x="640" y="276" font-size="15" fill="#333">Jun 5</text>
+                </svg>
+                <div id="ev-tooltip" style="position:absolute; display:none; left:0; top:0; transform:translate(12px, 12px); min-width:235px; background:#fff; border:1px solid #d7d7d7; border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,0.14); padding:12px 14px; pointer-events:none; z-index:4;">
+                  <div style="font-size:16px; font-weight:800; color:#333; line-height:1.1; margin-bottom:4px;">EV Charging Details</div>
+                  <div id="ev-tooltip-date" style="font-size:13px; font-weight:700; color:#666; margin-bottom:10px;">Jun 3</div>
+                  <div style="height:1px; background:#e5e5e5; margin-bottom:10px;"></div>
+                  <div id="ev-tooltip-body" style="display:grid; gap:7px; font-size:13px; color:#222;"></div>
+                </div>
+                </div>
+
+        
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</div>
+<script>
+  (function () {
+    const loadChart = document.getElementById('monitor-load-chart');
+    const solarChart = document.getElementById('solar-chart');
+    const evChart = document.getElementById('ev-chart');
+    const loadTooltip = document.getElementById('load-tooltip');
+    const loadTooltipDate = document.getElementById('load-tooltip-date');
+    const loadTooltipBody = document.getElementById('load-tooltip-body');
+    const loadCrosshair = document.getElementById('load-crosshair');
+    const loadActivePoint = document.getElementById('load-active-point');
+    const loadHitbox = document.getElementById('load-hitbox');
+    const solarTooltip = document.getElementById('solar-tooltip');
+    const solarTooltipDate = document.getElementById('solar-tooltip-date');
+    const solarTooltipBody = document.getElementById('solar-tooltip-body');
+    const solarActivePoint = document.getElementById('solar-active-point');
+    const evTooltip = document.getElementById('ev-tooltip');
+    const evTooltipDate = document.getElementById('ev-tooltip-date');
+    const evTooltipBody = document.getElementById('ev-tooltip-body');
+    const evActivePoint = document.getElementById('ev-active-point');
+
+    function showTooltip(tip, x, y) {
+      tip.style.display = 'block';
+      tip.style.left = `${x}px`;
+      tip.style.top = `${y}px`;
+    }
+
+    function hideTooltip(tip) {
+      tip.style.display = 'none';
+    }
+
+    function setActivePoint(point, activePointEl, chart) {
+      if (!point || !activePointEl) return;
+      activePointEl.setAttribute('cx', point.getAttribute('cx'));
+      activePointEl.setAttribute('cy', point.getAttribute('cy'));
+      activePointEl.style.display = 'block';
+      if (chart) {
+        const line = chart.querySelector('#load-crosshair');
+        if (line && point.hasAttribute('cx')) {
+          line.setAttribute('x1', point.getAttribute('cx'));
+          line.setAttribute('x2', point.getAttribute('cx'));
+        }
+      }
+    }
+
+    function nearestPoint(points, x) {
+      let best = null;
+      let bestDist = Infinity;
+      points.forEach((p) => {
+        const px = Number(p.getAttribute('cx') || 0);
+        const dist = Math.abs(px - x);
+        if (dist < bestDist) {
+          best = p;
+          bestDist = dist;
+        }
+      });
+      return best;
+    }
+
+    function renderRows(container, rows) {
+      container.innerHTML = rows.map(([label, value, color]) => `
+        <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+          <div style="display:flex; align-items:center; gap:8px; color:#333;">
+            <span style="width:10px; height:10px; border-radius:2px; background:${color}; display:inline-block;"></span>
+            <span>${label}</span>
+          </div>
+          <div style="font-weight:800; color:#222;">${value}</div>
+        </div>
+      `).join('');
+    }
+
+    function attachPointTooltip(chart, tip, tipDate, tipBody, mapping, activePointEl) {
+      if (!chart) return;
+      const points = chart.querySelectorAll('.chart-point, .load-point');
+      const hoverLine = chart.querySelector('#load-crosshair');
+      const moveActive = (point, clientX, clientY) => {
+        const values = JSON.parse(point.dataset.values || '{}');
+        const label = point.dataset.label || '';
+        tipDate.textContent = label;
+        renderRows(tipBody, mapping.map(([key, color]) => [key, values[key] || '—', color]));
+        const card = chart.closest('.card');
+        const rect = card ? card.getBoundingClientRect() : chart.getBoundingClientRect();
+        showTooltip(tip, clientX - rect.left, clientY - rect.top);
+        setActivePoint(point, activePointEl, chart);
+        if (hoverLine) {
+          hoverLine.setAttribute('x1', point.getAttribute('cx'));
+          hoverLine.setAttribute('x2', point.getAttribute('cx'));
+          hoverLine.style.display = 'block';
+        }
+      };
+      points.forEach((point) => {
+        point.addEventListener('mouseenter', (e) => moveActive(point, e.clientX, e.clientY));
+        point.addEventListener('mousemove', (e) => moveActive(point, e.clientX, e.clientY));
+        point.addEventListener('click', (e) => moveActive(point, e.clientX, e.clientY));
+      });
+      const moveAlong = (e) => {
+        const rect = chart.getBoundingClientRect();
+        const svgX = (e.clientX - rect.left) * (chart.viewBox.baseVal.width / rect.width);
+        const pts = Array.from(points).map((p) => ({ point: p, x: Number(p.getAttribute('cx') || 0) }));
+        let nearest = pts[0];
+        let min = Infinity;
+        pts.forEach((item) => {
+          const d = Math.abs(item.x - svgX);
+          if (d < min) { min = d; nearest = item; }
+        });
+        if (nearest && nearest.point) moveActive(nearest.point, e.clientX, e.clientY);
+      };
+      chart.addEventListener('mousemove', moveAlong);
+      chart.addEventListener('mousedown', moveAlong);
+      chart.addEventListener('touchmove', (e) => {
+        const touch = e.touches && e.touches[0];
+        if (touch) moveAlong(touch);
+      }, { passive: true });
+      chart.addEventListener('mouseleave', () => { hideTooltip(tip); if (hoverLine) hoverLine.style.display = 'none'; });
+      chart.addEventListener('touchend', () => setTimeout(() => hideTooltip(tip), 1200));
+    }
+
+    attachPointTooltip(loadChart, loadTooltip, loadTooltipDate, loadTooltipBody, [
+      ['Solar Production', '#14a67b'],
+      ['Facility Load', '#2b8ca8'],
+      ['EV Load', '#f2b21a'],
+      ['Battery SOC', '#ff6a21'],
+      ['Battery Power', '#5f8d83']
+    ], loadActivePoint);
+    attachPointTooltip(solarChart, solarTooltip, solarTooltipDate, solarTooltipBody, [
+      ['Solar Production', '#2b8ca8'],
+      ['Net Solar Load', '#f2b21a']
+    ], solarActivePoint);
+    attachPointTooltip(evChart, evTooltip, evTooltipDate, evTooltipBody, [
+      ['Started Sessions', '#163d92'],
+      ['Completed Sessions', '#f6b21d'],
+      ['kWh Delivered', '#b5b5b5']
+    ], evActivePoint);
+  })();
+</script>
+{% endblock %}

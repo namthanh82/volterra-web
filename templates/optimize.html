@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-bg-wrap">
+  <div class="page-bg page-bg--optimize"></div>
+  <div class="page-overlay page-overlay--optimize"></div>
+
+  <div class="container page-container">
+    <div class="two-col" style="align-items:stretch; gap: 18px; min-height: calc(100vh - 82px); margin-left: 0;">
+      {% include 'partials/sidebar.html' %}
+
+      <main class="app-main" style="scrollbar-color: rgba(46,177,163,0.45) transparent;">
+        <section class="card" style="background:linear-gradient(180deg, rgba(214,243,241,0.98) 0%, rgba(255,255,255,0.98) 68%, rgba(244,251,250,0.98) 100%); border:1px solid rgba(43,140,168,0.28); backdrop-filter: blur(10px); border-radius: 28px; padding: 16px 18px 18px; box-shadow:none; min-height: calc(100vh - 120px); max-height: calc(100vh - 120px); overflow-y:auto; overflow-x:hidden; scrollbar-width: thin; scrollbar-color: rgba(43,140,168,0.45) transparent;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom: 14px;">
+            <div>
+              <h1 class="title" style="margin:0; font-size:24px;">{{ 'Optimize Site Performance' if lang_code == 'en' else 'Tối ưu hiệu suất hệ thống' }}</h1>
+              <div class="muted" style="margin-top:4px; font-size:14px;">{{ 'Track energy savings, tariffs, and real-time powerflow' if lang_code == 'en' else 'Theo dõi tiết kiệm điện, giá điện và luồng công suất realtime' }}</div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn ghost" type="button" style="padding:9px 14px; border-radius:10px;">{{ 'Export' if lang_code == 'en' else 'Xuất' }}</button>
+              <button class="btn ghost" type="button" style="padding:9px 14px; border-radius:10px;">{{ 'Refresh' if lang_code == 'en' else 'Làm mới' }}</button>
+            </div>
+          </div>
+
+          <div class="grid grid-2" style="grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:16px;">
+            {% set optimize_cards = [
+              ('Total savings', '81.4M', '+12%'),
+              ('Solar share', '64%', '+6%'),
+              ('Peak reduction', '18%', '+3%')
+            ] if lang_code == 'en' else [
+              ('Tiết kiệm tổng', '81.4M', '+12%'),
+              ('Tỷ lệ solar', '64%', '+6%'),
+              ('Giảm đỉnh tải', '18%', '+3%')
+            ] %}
+            {% for label, value, trend in optimize_cards %}
+            <div class="card" style="background:linear-gradient(180deg, rgba(224,248,245,0.95) 0%, rgba(255,255,255,0.98) 100%); border:1px solid rgba(46,177,163,0.16); border-radius:18px; padding:14px;">
+              <div class="stat-label" style="font-size:13px; margin-bottom:8px;">{{ label }}</div>
+              <div style="display:flex; align-items:end; justify-content:space-between; gap:10px;">
+                <div class="stat-value" style="font-size:26px; line-height:1;">{{ value }}</div>
+                <span class="badge" style="background:#e8f7f5; color:#1f7f75; border:1px solid #bfe2db;">{{ trend }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:14px; margin-bottom:14px;">
+            <div class="card" style="background:#fff; border:1px solid #cfe8e3; border-radius:18px; padding:14px; min-height:340px; overflow:hidden;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px;">
+                <div>
+                  <div style="font-weight:800; font-size:18px; color:#18313d;">{{ 'Financial Savings' if lang_code == 'en' else 'Tiết kiệm tài chính' }}</div>
+                  <div class="muted" style="font-size:13px;">{{ 'Actual vs expected savings' if lang_code == 'en' else 'Thực tế so với kỳ vọng' }}</div>
+                </div>
+                <select style="height:40px; min-width:140px; border-radius:10px;"><option>{{ 'This month' if lang_code == 'en' else 'Tháng này' }}</option></select>
+              </div>
+              <svg viewBox="0 0 760 280" width="100%" height="280" preserveAspectRatio="none" style="display:block;">
+                <defs>
+                  <linearGradient id="optBar" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#2EB1A3" stop-opacity="0.95" />
+                    <stop offset="100%" stop-color="#2EB1A3" stop-opacity="0.45" />
+                  </linearGradient>
+                  <linearGradient id="optBarExpected" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#b8e8e1" stop-opacity="0.95" />
+                    <stop offset="100%" stop-color="#b8e8e1" stop-opacity="0.45" />
+                  </linearGradient>
+                </defs>
+                <g stroke="#edf3f2" stroke-width="1">
+                  <line x1="34" y1="40" x2="730" y2="40"/>
+                  <line x1="34" y1="92" x2="730" y2="92"/>
+                  <line x1="34" y1="144" x2="730" y2="144"/>
+                  <line x1="34" y1="196" x2="730" y2="196"/>
+                  <line x1="34" y1="248" x2="730" y2="248"/>
+                </g>
+                <g fill="#94cfc8" font-size="11" font-family="inherit">
+                  <text x="45" y="268">Jan</text><text x="135" y="268">Feb</text><text x="225" y="268">Mar</text><text x="315" y="268">Apr</text><text x="405" y="268">May</text><text x="495" y="268">Jun</text><text x="585" y="268">Jul</text><text x="675" y="268">Aug</text>
+                </g>
+                <g>
+                  <rect x="50" y="136" width="26" height="112" rx="8" fill="url(#optBarExpected)"/>
+                  <rect x="88" y="118" width="26" height="130" rx="8" fill="url(#optBar)"/>
+                  <rect x="140" y="126" width="26" height="122" rx="8" fill="url(#optBarExpected)"/>
+                  <rect x="178" y="102" width="26" height="146" rx="8" fill="url(#optBar)"/>
+                  <rect x="230" y="112" width="26" height="136" rx="8" fill="url(#optBarExpected)"/>
+                  <rect x="268" y="90" width="26" height="158" rx="8" fill="url(#optBar)"/>
+                  <rect x="320" y="104" width="26" height="144" rx="8" fill="url(#optBarExpected)"/>
+                  <rect x="358" y="78" width="26" height="170" rx="8" fill="url(#optBar)"/>
+                  <rect x="410" y="94" width="26" height="154" rx="8" fill="url(#optBarExpected)"/>
+                  <rect x="448" y="70" width="26" height="178" rx="8" fill="url(#optBar)"/>
+                  <rect x="500" y="88" width="26" height="160" rx="8" fill="url(#optBarExpected)"/>
+                  <rect x="538" y="64" width="26" height="184" rx="8" fill="url(#optBar)"/>
+                  <rect x="590" y="110" width="26" height="138" rx="8" fill="url(#optBarExpected)"/>
+                  <rect x="628" y="96" width="26" height="152" rx="8" fill="url(#optBar)"/>
+                  <rect x="680" y="86" width="26" height="162" rx="8" fill="url(#optBarExpected)"/>
+                </g>
+              </svg>
+            </div>
+
+            <div class="card" style="background:#fff; border:1px solid #cfe8e3; border-radius:18px; padding:14px; min-height:340px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px;">
+                <div>
+                  <div style="font-weight:800; font-size:18px; color:#18313d;">{{ 'Tariff Information' if lang_code == 'en' else 'Thông tin giá điện' }}</div>
+                  <div class="muted" style="font-size:13px;">{{ 'Energy and demand rates' if lang_code == 'en' else 'Giá điện năng và giá công suất' }}</div>
+                </div>
+              </div>
+              <div style="display:grid; gap:12px;">
+                <div class="card soft" style="border-radius:16px; padding:14px; border:1px solid #d9ece8;">
+                  <div style="font-weight:700; margin-bottom:8px;">{{ 'Energy rates' if lang_code == 'en' else 'Giá điện năng' }}</div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>00:00 - 05:00</span><strong>1,609 đ</strong></div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>05:00 - 17:00</span><strong>2,887 đ</strong></div>
+                  <div style="display:flex; justify-content:space-between;"><span>17:00 - 24:00</span><strong>5,025 đ</strong></div>
+                </div>
+                <div class="card soft" style="border-radius:16px; padding:14px; border:1px solid #d9ece8;">
+                  <div style="font-weight:700; margin-bottom:8px;">{{ 'Demand rates' if lang_code == 'en' else 'Giá công suất' }}</div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Peak</span><strong>1,565 đ/kW</strong></div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Shoulder</span><strong>2,601 đ/kW</strong></div>
+                  <div style="display:flex; justify-content:space-between;"><span>Off-peak</span><strong>3,835 đ/kW</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap:14px;">
+            <div class="card" style="background:#fff; border:1px solid #cfe8e3; border-radius:18px; padding:14px; min-height:360px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+                <div>
+                  <div style="font-weight:800; font-size:18px; color:#18313d;">{{ 'Site Realtime Powerflow' if lang_code == 'en' else 'Luồng công suất realtime' }}</div>
+                  <div class="muted" style="font-size:13px;">{{ 'Solar, grid, and EV charging flow' if lang_code == 'en' else 'Luồng solar, lưới và sạc EV' }}</div>
+                </div>
+                <span class="badge" style="background:#e8f7f5; color:#1f7f75; border:1px solid #bfe2db;">{{ 'Live' if lang_code == 'en' else 'Trực tiếp' }}</span>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 80px 1fr 80px 1fr; gap:10px; align-items:center; min-height:280px;">
+                <div class="card soft" style="height:100%; min-height:190px; border-radius:18px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; border:1px solid #d9ece8;">
+                  <div style="font-size:13px; color:#5b7773; margin-bottom:8px;">Solar</div>
+                  <div style="font-size:30px; font-weight:800; color:#18313d;">328 kW</div>
+                </div>
+                <div style="display:grid; justify-items:center; gap:10px;">
+                  <div style="width:62px; height:62px; border-radius:50%; background:#e8f7f5; border:1px solid #bfe2db; display:grid; place-items:center; color:#1f7f75; font-size:22px; font-weight:800;">→</div>
+                  <div style="width:4px; height:78px; background:linear-gradient(180deg, #2EB1A3, #7be7da); border-radius:999px;"></div>
+                </div>
+                <div class="card soft" style="height:100%; min-height:190px; border-radius:18px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; border:1px solid #d9ece8;">
+                  <div style="font-size:13px; color:#5b7773; margin-bottom:8px;">BESS</div>
+                  <div style="font-size:30px; font-weight:800; color:#18313d;">210 kW</div>
+                </div>
+                <div style="display:grid; justify-items:center; gap:10px;">
+                  <div style="width:62px; height:62px; border-radius:50%; background:#e8f7f5; border:1px solid #bfe2db; display:grid; place-items:center; color:#1f7f75; font-size:22px; font-weight:800;">→</div>
+                  <div style="width:4px; height:78px; background:linear-gradient(180deg, #2EB1A3, #7be7da); border-radius:999px;"></div>
+                </div>
+                <div class="card soft" style="height:100%; min-height:190px; border-radius:18px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; border:1px solid #d9ece8;">
+                  <div style="font-size:13px; color:#5b7773; margin-bottom:8px;">EV Load</div>
+                  <div style="font-size:30px; font-weight:800; color:#18313d;">538 kW</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="background:#fff; border:1px solid #cfe8e3; border-radius:18px; padding:14px; min-height:360px;">
+              <div style="font-weight:800; font-size:18px; color:#18313d; margin-bottom:10px;">{{ 'Optimization notes' if lang_code == 'en' else 'Ghi chú tối ưu' }}</div>
+              <div style="display:grid; gap:10px;">
+                <div class="card soft" style="border-radius:16px; padding:14px; border:1px solid #d9ece8;">
+                  <div style="font-weight:700; margin-bottom:6px;">{{ 'Current strategy' if lang_code == 'en' else 'Chiến lược hiện tại' }}</div>
+                  <div class="muted" style="font-size:13px; line-height:1.5;">{{ 'Shift charging load to solar-rich windows and keep BESS support for peak hours.' if lang_code == 'en' else 'Dịch tải sạc sang khung giờ nhiều solar và giữ BESS hỗ trợ cho giờ cao điểm.' }}</div>
+                </div>
+                <div class="card soft" style="border-radius:16px; padding:14px; border:1px solid #d9ece8;">
+                  <div style="font-weight:700; margin-bottom:6px;">{{ 'Recommended action' if lang_code == 'en' else 'Khuyến nghị' }}</div>
+                  <div class="muted" style="font-size:13px; line-height:1.5;">{{ 'Increase off-peak charging by 18% and reduce peak demand by 12%.' if lang_code == 'en' else 'Tăng sạc giờ thấp điểm 18% và giảm nhu cầu giờ cao điểm 12%.' }}</div>
+                </div>
+                <div class="card soft" style="border-radius:16px; padding:14px; border:1px solid #d9ece8;">
+                  <div style="font-weight:700; margin-bottom:6px;">{{ 'Control target' if lang_code == 'en' else 'Mục tiêu điều khiển' }}</div>
+                  <div class="muted" style="font-size:13px; line-height:1.5;">{{ 'Keep site power under 600 kW during the 17:00 - 21:00 window.' if lang_code == 'en' else 'Giữ công suất trạm dưới 600 kW trong khung 17:00 - 21:00.' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</div>
+{% endblock %}

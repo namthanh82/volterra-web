@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+
+{% endblock %}
+{% block content %}
+<div class="page-bg-wrap">
+  <div class="page-bg page-bg-dashboard"></div>
+  <div class="page-overlay page-overlay--dashboard"></div>
+
+  <div class="container page-container" style="padding-top: 10px;">
+    <div class="two-col" style="align-items:stretch; gap: 18px; min-height: calc(100vh - 82px); margin-left: 0;">
+      {% include 'partials/sidebar.html' %}
+
+      <div style="display:grid; gap:18px; min-width:0; align-content:start; {% if selected_station and selected_detail %}filter: blur(7px) saturate(0.92); pointer-events:none; user-select:none;{% endif %}">
+        <main style="display:grid; gap:18px; min-width:0; align-content:start;">
+          <section class="card" style="background:linear-gradient(180deg, rgba(214,243,241,0.98) 0%, rgba(255,255,255,0.98) 68%, rgba(244,251,250,0.98) 100%); border:1px solid rgba(43,140,168,0.28); backdrop-filter: blur(10px); border-radius: 28px; padding: 16px 18px 18px; box-shadow:none; min-height: calc(100vh - 120px); max-height: calc(100vh - 120px); overflow-y:auto; overflow-x:hidden; scrollbar-width: thin; scrollbar-color: rgba(43,140,168,0.45) transparent;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap: 16px; flex-wrap:wrap; margin-bottom: 14px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <img src="{{ url_for('static', filename='images/tramsac2.png') }}" alt="{{ 'Stations' if lang_code == 'en' else 'Trạm sạc' }}" style="width:28px; height:28px; object-fit:contain; display:block;" />
+              <div>
+                <h1 class="title" style="margin:0; font-size:22px;">{{ 'Charging Stations' if lang_code == 'en' else 'Trạm sạc' }}</h1>
+                <div class="muted" style="margin-top:4px; font-size:14px;">{{ 'Each station can serve up to 2 vehicles at the same time' if lang_code == 'en' else 'Mỗi trạm có thể sạc tối đa 2 xe cùng lúc' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 150px 150px 160px 160px auto; gap: 10px; align-items:end; padding: 10px 0 18px; border-top: 1px solid #d7e6ee; border-bottom: 1px solid #d7e6ee;">
+            <div>
+              <div class="label" style="margin-bottom:6px; color:#5c5c5c;">{{ 'Status' if lang_code == 'en' else 'Trạng thái' }}</div>
+              <select id="dashboard-status-filter" style="height:50px; border-radius:10px;">
+                <option value="all">{{ 'All' if lang_code == 'en' else 'Tất cả' }}</option>
+                <option value="charging">{{ 'Charging' if lang_code == 'en' else 'Đang sạc' }}</option>
+                <option value="ready">{{ 'Ready' if lang_code == 'en' else 'Sẵn sàng' }}</option>
+                <option value="offline">{{ 'Offline' if lang_code == 'en' else 'Ngoại tuyến' }}</option>
+              </select>
+            </div>
+            <div>
+              <div class="label" style="margin-bottom:6px; color:#5c5c5c;">{{ 'Station' if lang_code == 'en' else 'Trạm' }}</div>
+              <select id="dashboard-station-filter" style="height:50px; border-radius:10px;">
+                <option value="all">{{ 'All' if lang_code == 'en' else 'Tất cả' }}</option>
+                {% for card in dashboard_cards %}
+                <option value="{{ card.name }}">{{ card.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <div class="label" style="margin-bottom:6px; color:#5c5c5c;">{{ 'Charging time (min)' if lang_code == 'en' else 'Thời gian sạc (min)' }}</div>
+              <input id="dashboard-time-min" class="input" style="height:50px; border-radius:10px;" placeholder="{{ 'More than' if lang_code == 'en' else 'Nhiều hơn' }}" />
+            </div>
+            <div style="padding-top:24px;">
+              <input id="dashboard-time-max" class="input" style="height:50px; border-radius:10px;" placeholder="{{ 'Less than' if lang_code == 'en' else 'Ít hơn' }}" />
+            </div>
+            <div style="padding-top:24px;">
+              <button id="dashboard-filter-clear" class="btn ghost" type="button" style="height:50px; border-radius:10px; padding:0 14px;">{{ 'Clear' if lang_code == 'en' else 'Xóa' }}</button>
+            </div>
+          </div>
+
+          <div style="padding: 14px 0 10px; display:flex; flex-wrap:wrap; gap:10px; border-bottom:1px solid #d7e6ee;">
+            <span class="badge" style="background:#fff3e7; color:#ff8a1d; border:2px solid #ff8a1d; border-radius:999px; padding:7px 12px; font-size:14px;">{{ 'Fully charged (3)' if lang_code == 'en' else 'Đã sạc đầy (3)' }}</span>
+            <span class="badge" style="background:#eff9ea; color:#4ca72c; border:2px solid #4ca72c; border-radius:999px; padding:7px 12px; font-size:14px;">{{ 'Charging (14)' if lang_code == 'en' else 'Đang sạc (14)' }}</span>
+          </div>
+
+          <div id="dashboard-stations-grid" style="padding-top: 14px; display:grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; row-gap: 14px;">
+            {% for card in dashboard_cards %}
+            <button type="button" class="station-card-btn" data-station="{{ card.name }}" data-status="{{ card.state }}" onclick="window.location='{{ url_for('dashboard', station=card.name) }}'" style="display:block; width:100%; text-align:left; background:transparent; border:0; padding:0; cursor:pointer; color:inherit;">
+              <div class="station-card" data-station-card="{{ card.name }}" style="border:2px solid #2EB1A3; border-radius:16px; background:{% if card.tone == 'orange' %}#fff8ef{% else %}#f3f8e8{% endif %}; min-height: 206px; padding: 12px 12px 10px; display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px;">
+                    <div>
+                      <div style="font-weight:800; color:#313131; font-size:18px; line-height:1;">{{ card.name }}</div>
+                      <div style="margin-top:4px; font-size:12px; color:#5d5d5d; line-height:1.2;">{{ 'Bus' if lang_code == 'en' and card.model == 'Vin Bus' else 'Car' if lang_code == 'en' else card.model }}</div>
+                    </div>
+                    <div style="border:1px solid #8d8d8d; color:#757575; font-size:11px; border-radius:4px; padding:3px 5px; line-height:1; background:#fff;">L2</div>
+                  </div>
+                  <div style="border-top:3px solid #2EB1A3; margin: 6px 0 10px;"></div>
+                </div>
+
+                <div style="display:grid; gap:10px; justify-items:center; flex:1; color:#444; text-align:center;">
+                  <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:16px; width:100%; max-width:170px; margin-top:7px;">
+                    {% set slot_states = ['occupied', 'empty'] if card.state == 'charging' else ['occupied', 'occupied'] %}
+                    {% for slot_state in slot_states %}
+                    <div style="height:70px;width:70px; border:3px solid {% if slot_state == 'occupied' %}#2EB1A3{% else %}#cfd9de{% endif %}; border-radius:6px; background:{% if slot_state == 'occupied' %}#ffffff{% else %}#f8fbfc{% endif %}; display:flex; align-items:center; justify-content:center;">
+                      {% if slot_state == 'occupied' %}
+                        <img src="{{ url_for('static', filename=station_vehicle_image.get(card.name, 'images/oto.png')) }}" alt="{{ 'Vehicle' if lang_code == 'en' else 'Xe' }}" style="width:26px; height:26px; object-fit:contain; display:block;" />
+                      {% else %}
+                        <span style="font-size:18px; color:#9aa9b2; line-height:1;">+</span>
+                      {% endif %}
+                    </div>
+                    {% endfor %}
+                  </div>
+                  <div style="width:100%; display:grid; gap:8px; margin-top:2px;">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:10px;">
+                      <span style="font-size:14px; font-weight:800; line-height:1; color:{% if card.state == 'charging' %}#1f7af0{% elif card.state == 'finished' %}#ff8a1d{% else %}#444{% endif %};">{% if card.state == 'charging' %}{{ 'Charging' if lang_code == 'en' else 'Đang sạc' }}{% elif card.state == 'finished' %}{{ 'Fully charged' if lang_code == 'en' else 'Đã sạc đầy' }}{% else %}{{ 'Idle' if lang_code == 'en' else 'Chờ' }}{% endif %}</span>
+                      <span style="font-size:14px; font-weight:800; line-height:1; color:{% if card.state == 'charging' %}#1f7af0{% elif card.state == 'finished' %}#ff8a1d{% else %}#444{% endif %};">{% if card.state == 'charging' %}{{ 'Charging' if lang_code == 'en' else 'Đang sạc' }}{% elif card.state == 'finished' %}{{ 'Fully charged' if lang_code == 'en' else 'Đã sạc đầy' }}{% else %}{{ 'Idle' if lang_code == 'en' else 'Chờ' }}{% endif %}</span>
+                    </div>
+                    <div style="border:1px solid #d7e6ee; border-radius:8px; background:#ffffff; padding:7px 10px; text-align:left;">
+                      <div style="font-size:11px; color:#8a8a8a; line-height:1.2;">{% if card.state == 'finished' %}{{ 'Completed' if lang_code == 'en' else 'Hoàn tất' }}{% else %}{{ 'Started Charging' if lang_code == 'en' else 'Bắt đầu sạc' }}{% endif %}</div>
+                      <div style="font-size:13px; font-weight:700; color:#313131; margin-top:2px; line-height:1.2;">{{ 'Today, 10:47pm' if lang_code == 'en' else 'Hôm nay, 22:47' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </button>
+            {% endfor %}
+          </div>
+          <div id="dashboard-no-results" style="display:none; padding:18px 0 4px; color:#5c5c5c; font-size:14px; font-weight:700;">{{ 'No stations match the selected filter.' if lang_code == 'en' else 'Không có trạm nào phù hợp bộ lọc.' }}</div>
+        </section>
+      </main>
+      </div>
+
+      {% if selected_station and selected_detail %}
+          <div style="position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.62); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(8px); display:flex; align-items:center; justify-content:center; padding:18px;">
+            <div style="width:min(1180px, 100%); max-height:min(88vh, 980px); overflow:auto; background:rgba(255,255,255,0.98); border:1px solid rgba(215,230,238,0.95); border-radius:24px; padding:16px; box-shadow:0 24px 80px rgba(0,0,0,0.32);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px; flex-wrap:wrap;">
+                <div>
+                  <div style="font-size:13px; color:#5c5c5c; margin-bottom:4px;">{{ 'Selected station' if lang_code == 'en' else 'Trạm đang chọn' }}</div>
+                  <div style="font-weight:800; font-size:22px; color:#18313d;">{{ selected_station.name }}</div>
+                  <div style="margin-top:4px; color:#5c5c5c; font-size:13px;">{{ selected_detail.site }}</div>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; align-items:center;">
+                  <a class="btn ghost" href="{{ url_for('dashboard') }}" style="padding:9px 12px; border-radius:10px;">{{ 'Close' if lang_code == 'en' else 'Đóng' }}</a>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1.35fr 0.75fr; gap:14px; align-items:stretch;">
+                <div style="display:grid; gap:14px; align-self:stretch;">
+                  <div class="card" style="background:#fff; border:1px solid #cfe8e3; border-radius:18px; padding:14px; box-shadow: 0 0 0 1px rgba(46,177,163,0.04) inset; min-height:100%; display:flex; flex-direction:column;">
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px;">
+                      <div style="display:grid; gap:6px;">
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                          <span class="badge" style="background:#eff9ea; color:#4ca72c; border:1px solid #4ca72c;">{{ selected_detail.charge_type }}</span>
+                          <span class="badge" style="background:#fff3e7; color:#ff8a1d; border:1px solid #ffd4a8;">{{ selected_detail.power }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:10px; margin-bottom:12px;">
+                      <div class="card soft" style="padding:14px; border-radius:14px; background:#e8f7f5; min-height:88px;">
+                        <div class="label" style="margin-bottom:6px;">{{ 'Voltage' if lang_code == 'en' else 'Điện áp' }}</div>
+                        <div style="font-size:24px; font-weight:800; color:#18313d;">{{ selected_detail.voltage }}</div>
+                      </div>
+                      <div class="card soft" style="padding:14px; border-radius:14px; background:#edf5fb; min-height:88px;">
+                        <div class="label" style="margin-bottom:6px;">{{ 'Current' if lang_code == 'en' else 'Dòng điện' }}</div>
+                        <div style="font-size:24px; font-weight:800; color:#18313d;">{{ selected_detail.current }}</div>
+                      </div>
+                      <div class="card soft" style="padding:14px; border-radius:14px; background:#edf5fb; min-height:88px;">
+                        <div class="label" style="margin-bottom:6px;">{{ 'Power' if lang_code == 'en' else 'Công suất' }}</div>
+                        <div style="font-size:24px; font-weight:800; color:#18313d;">{{ selected_detail.power }}</div>
+                      </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px;">
+                      {% for i in range(2) %}
+                      {% set connector_state = popup_connector_state[selected_station.name][i] %}
+                      <div class="card soft" style="padding:14px; border-radius:14px; border:1px solid #cfe8e3; background:#f7fbfd; min-height:170px; display:flex; flex-direction:column; justify-content:space-between;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                          <div>
+                            <div style="font-weight:800; color:#18313d;">{{ 'Connector A' if i == 0 else 'Connector B' }}</div>
+                            <div class="muted" style="font-size:13px; margin-top:4px;">{{ 'Vehicle 1 slot' if i == 0 and lang_code == 'en' else 'Vehicle 2 slot' if i == 1 and lang_code == 'en' else 'Khe xe 1' if i == 0 else 'Khe xe 2' }}</div>
+                          </div>
+                          <span class="badge {% if connector_state == 'Occupied' %}charging{% else %}online{% endif %}">{{ 'Charging' if connector_state == 'Occupied' and lang_code == 'en' else 'Đang sạc' if connector_state == 'Occupied' else 'Ready' if lang_code == 'en' else 'Sẵn sàng' }}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; justify-content:center; min-height:72px; border:1px dashed #bfe2b5; border-radius:12px; background:#fff; margin-top:10px;">
+                          {% if connector_state == 'Ready' %}
+                            <div style="font-size:32px; color:#2EB1A3; font-weight:800; line-height:1;">+</div>
+                          {% else %}
+                            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                              <img src="{{ url_for('static', filename=station_vehicle_image.get(selected_station.name, 'images/oto.png')) }}" alt="{{ 'Vehicle icon' if lang_code == 'en' else 'Biểu tượng xe' }}" style="width:48px; height:48px; object-fit:contain; display:block;" />
+                            </div>
+                          {% endif %}
+                        </div>
+                        {% if connector_state == 'Occupied' %}
+                        <div style="display:flex; justify-content:space-between; gap:10px; font-size:14px; color:#18313d; margin-top:10px;">
+                          <span>{{ 'Booked time' if lang_code == 'en' else 'Thời gian đặt' }}</span><strong>{{ vehicle_booked_duration.get(selected_station.name, [0, 0])[i] }} {{ 'min' if lang_code == 'en' else 'phút' }}</strong>
+                        </div>
+                        {% endif %}
+                        <div style="display:flex; justify-content:space-between; gap:10px; font-size:14px; color:#18313d; margin-top:10px;">
+                          <span>{{ 'Source' if lang_code == 'en' else 'Nguồn' }}</span><strong>{{ selected_detail.source }}</strong>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                </div>
+
+                <div style="display:grid; gap:14px;">
+                  <div class="card" id="control-actions-card" style="background:#fff; border:1px solid #eed7d7; border-radius:18px; padding:14px; min-height: 100%; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:10px; gap:12px; flex-wrap:wrap;">
+                      <button id="control-card-back" class="btn ghost" type="button" style="display:none; padding:8px 12px; border-radius:10px;">{{ 'Back' if lang_code == 'en' else 'Quay lại' }}</button>
+                    </div>
+
+                    <div id="control-actions-list" style="display:grid; gap:6px; flex:1; align-content:start;">
+                      {% set action_items = [
+                        ('remote_commands', 'Remote Commands', 'Container for charger control actions.'),
+                        ('prioritize_evse', 'Prioritize EVSE', 'Prioritize maximizing this EVSE charging rate above other EVSEs.'),
+                        ('disable_station', 'Disable station', 'Temporarily disable the station from accepting sessions.'),
+                      ] %}
+                      {% for action_id, title, description in action_items %}
+                      {% set action_colors = {
+                        'start_evse': '',
+                        'stop_evse': '#1f242c',
+                        'soft_reset': '#1f242c',
+                        'hard_reset': '#1f242c',
+                        'update_firmware': '#1f242c',
+                        'download_log': '#1f242c',
+                        'update_config': '#1f242c',
+                        'prioritize_evse': '#1fa86d',
+                        'charging_schedule': '#1f242c',
+                        'remote_commands': '#1f242c',
+                        'disable_station': '#1f242c',
+                      } %}
+                      {% set action_icons = {
+                        'start_evse': '▶',
+                        'stop_evse': '■',
+                        'soft_reset': '↻',
+                        'hard_reset': '↻',
+                        'update_firmware': '⟳',
+                        'download_log': '⇩',
+                        'update_config': '⚙',
+                        'prioritize_evse': ' ▶',
+                        'charging_schedule': '<img src="{{ url_for(\'static\', filename=\'images/calender.png\') }}" alt="Charging Schedule" style="width:20px; height:20px; object-fit:contain; display:block;" />',
+                        'remote_commands': '<img src="{{ url_for(\'static\', filename=\'images/remote1.png\') }}" alt="Remote" style="width:20px; height:20px; object-fit:contain; display:block;" />',
+                        'disable_station': '●',
+                      } %}
+                      <button type="button" class="action-item" data-action="{{ action_id }}" data-title="{{ title }}" data-desc="{{ description }}" style="width:100%; text-align:left; background:#fff; border:1px solid #e1e8ec; border-radius:12px; padding:9px 10px; cursor:pointer; display:flex; align-items:center; gap:8px;">
+                        <div style="width:16px; height:16px; flex:0 0 auto; display:flex; align-items:center; justify-content:center; color:{{ action_colors.get(action_id, '#6f7b86') }}; font-size:15px; line-height:1; font-weight:900;">{% if action_id == 'remote_commands' %}<img src="{{ url_for('static', filename='images/remote1.png') }}" alt="Remote" style="width:50px; height:50px; object-fit:contain; display:block;" />{% elif action_id == 'charging_schedule' %}<img src="{{ url_for('static', filename='images/calender.png') }}" alt="Charging Schedule" style="width:20px; height:20px; object-fit:contain; display:block;" />{% else %}{{ action_icons.get(action_id, '•') }}{% endif %}</div>
+                        <div style="min-width:0;">
+                          <div style="font-weight:600; color:{{ action_colors.get(action_id, '#18313d') }}; font-size:14px; line-height:1.05;{% if action_id == 'charging_schedule' %} color:#000000;{% endif %}">{{ title }}</div>
+                        </div>
+                      </button>
+                      {% endfor %}
+                    </div>
+
+                    <div id="control-actions-detail" style="display:grid; flex:1; align-content:start; gap:12px;">
+                      <div id="control-detail-form" style="display:grid; gap:8px;">
+                        <button class="btn ghost" type="button" style="justify-content:center;">Start EVSE</button>
+                        <button class="btn ghost" type="button" style="justify-content:center;">Stop EVSE</button>
+                        <button class="btn ghost" type="button" style="justify-content:center;">Soft reset</button>
+                        <button class="btn ghost" type="button" style="justify-content:center;">Hard reset</button>
+                        <button class="btn ghost" type="button" style="justify-content:center;">Update firmware</button>
+                        <button class="btn ghost" type="button" style="justify-content:center;">Download diagnostic log</button>
+                        <button class="btn ghost" type="button" style="justify-content:center;">Update EVSE config</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script>
+  const stationCard = document.getElementById('control-actions-card');
+  (function () {
+    const statusFilter = document.getElementById('dashboard-status-filter');
+    const stationFilter = document.getElementById('dashboard-station-filter');
+    const timeMin = document.getElementById('dashboard-time-min');
+    const timeMax = document.getElementById('dashboard-time-max');
+    const clearBtn = document.getElementById('dashboard-filter-clear');
+    const noResults = document.getElementById('dashboard-no-results');
+    const stationButtons = Array.from(document.querySelectorAll('.station-card-btn'));
+    const stationCards = Array.from(document.querySelectorAll('.station-card'));
+    const stationMeta = {};
+    stationButtons.forEach((btn) => { stationMeta[btn.dataset.station] = { status: btn.dataset.status || 'ready' }; });
+    function applyFilters() {
+      const status = (statusFilter?.value || 'all').toLowerCase();
+      const station = (stationFilter?.value || 'all').toLowerCase();
+      const minVal = parseFloat(timeMin?.value);
+      const maxVal = parseFloat(timeMax?.value);
+      let visible = 0;
+      stationButtons.forEach((btn) => {
+        const name = (btn.dataset.station || '').toLowerCase();
+        const card = btn.querySelector('.station-card');
+        const st = (btn.dataset.status || 'ready').toLowerCase();
+        const cardMinutes = parseInt((card?.querySelector('div[style*="font-size:10px"]')?.textContent || '0').match(/\d+/)?.[0] || '0', 10);
+        const matchStation = station === 'all' || name === station;
+        const matchStatus = status === 'all' || st === status;
+        const matchMin = Number.isNaN(minVal) || cardMinutes >= minVal;
+        const matchMax = Number.isNaN(maxVal) || cardMinutes <= maxVal;
+        const show = matchStation && matchStatus && matchMin && matchMax;
+        btn.style.display = show ? 'block' : 'none';
+        if (show) visible += 1;
+      });
+      noResults.style.display = visible ? 'none' : 'block';
+    }
+    statusFilter?.addEventListener('change', applyFilters);
+    stationFilter?.addEventListener('change', applyFilters);
+    timeMin?.addEventListener('input', applyFilters);
+    timeMax?.addEventListener('input', applyFilters);
+    clearBtn?.addEventListener('click', () => {
+      if (statusFilter) statusFilter.value = 'all';
+      if (stationFilter) stationFilter.value = 'all';
+      if (timeMin) timeMin.value = '';
+      if (timeMax) timeMax.value = '';
+      applyFilters();
+    });
+    applyFilters();
+
+    const card = document.getElementById('control-actions-card');
+    const list = document.getElementById('control-actions-list');
+    const detail = document.getElementById('control-actions-detail');
+    const back = document.getElementById('control-card-back');
+    const detailForm = document.getElementById('control-detail-form');
+    const buttons = document.querySelectorAll('.action-item');
+    if (!card || !list || !detail || !back || !detailForm || !buttons.length) return;
+
+    const formByAction = {
+      
+      remote_commands: '<div style="display:grid; gap:8px;"><button class="btn ghost" type="button" style="justify-content:center;">Start EVSE</button><button class="btn ghost" type="button" style="justify-content:center;">Stop EVSE</button><button class="btn ghost" type="button" style="justify-content:center;">Soft reset</button><button class="btn ghost" type="button" style="justify-content:center;">Hard reset</button><button class="btn ghost" type="button" style="justify-content:center;">Update firmware</button><button class="btn ghost" type="button" style="justify-content:center;">Download diagnostic log</button><button class="btn ghost" type="button" style="justify-content:center;">Update EVSE config</button></div>',
+      prioritize_evse: '<div style="display:grid; gap:10px;"><label style="display:grid; gap:10px;"><span class="label">Target EVSE</span><select class="input" style="height:50px; border-radius:10px;"><option>EVSE 1</option><option>EVSE 2</option><option>EVSE 3</option></select></label><label style="display:grid; gap:6px;"><span class="label">Priority mode</span><select class="input" style="height:50px; border-radius:10px;"><option>Highest charge rate</option><option>Balanced</option><option>Manual</option></select></label><label style="display:grid; gap:6px;"><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;"><button class="btn primary" type="button" style="flex:1 1 140px; justify-content:center;">Apply priority</button><button class="btn ghost" type="button" style="flex:1 1 140px; justify-content:center;">Cancel</button></div></div>',
+      charging_schedule: '<div style="display:grid; gap:8px;"><label style="display:grid; gap:6px;"><span class="label">Charging rate</span><input class="input" style="height:50px; border-radius:10px;" placeholder="120 kW" /></label><label style="display:grid; gap:6px;"><span class="label">Available window</span><input class="input" style="height:50px; border-radius:10px;" placeholder="08:00 - 18:00" /></label><label style="display:grid; gap:6px;"><span class="label">Days</span><input class="input" style="height:50px; border-radius:10px;" placeholder="Mon-Fri" /></label><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;"><button class="btn primary" type="button" style="flex:1 1 140px; justify-content:center;">Save</button><button class="btn ghost" type="button" style="flex:1 1 140px; justify-content:center;">Cancel</button></div></div>',
+      disable_station: '<div style="display:grid; gap:8px;"><label style="display:grid; gap:6px;"><span class="label">Disable duration</span><select class="input" style="height:50px; border-radius:10px;"><option>15 minutes</option><option>1 hour</option><option>Until manual re-enable</option></select></label><label style="display:grid; gap:6px;"><span class="label">Notice</span><textarea class="input" style="min-height:92px; resize:vertical; border-radius:10px; padding:12px 14px;">Station is temporarily unavailable</textarea></label><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;"><button class="btn primary" type="button" style="flex:1 1 140px; justify-content:center;">Disable station</button><button class="btn ghost" type="button" style="flex:1 1 140px; justify-content:center;">Cancel</button></div></div>',
+      default: '<div style="font-size:13px; color:#5c5c5c; line-height:1.45;">Choose an action to configure the EVSE.</div>'
+    };
+
+    function showList() {
+      list.style.display = 'grid';
+      detail.style.display = 'none';
+      back.style.display = 'none';
+      buttons.forEach((btn) => btn.classList.remove('active'));
+    }
+
+    function showDetail(btn) {
+      const actionId = btn.dataset.action;
+      const actionTitle = btn.dataset.title || 'Action';
+      buttons.forEach((b) => b.classList.toggle('active', b === btn));
+      list.style.display = 'none';
+      detail.style.display = 'grid';
+      back.style.display = 'inline-flex';
+      detailForm.innerHTML = formByAction[actionId] || formByAction.default;
+    }
+
+    buttons.forEach((btn) => btn.addEventListener('click', () => showDetail(btn)));
+    back.addEventListener('click', showList);
+    showList();
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="{{ lang_code }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ 'Volterra - EV Charging Platform' if lang_code == 'en' else 'Volterra' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <div class="layout">
+      <div class="topbar" style="justify-content:space-between; width:100%;">
+        <div class="brand" style="display:flex; align-items:center; gap:10px; height: 34px; overflow:hidden;">
+          <img src="{{ url_for('static', filename='images/LOGO - CTY VOLTERRA - FINAL-01.png') }}" alt="Volterra logo" style="height:70px; width: auto; display:block;margin-top: 4px;" />
+        </div>
+        <form method="post" action="/set-language" style="display:flex; gap:10px; align-items:center; margin:0;">
+          <input type="hidden" name="next" value="{{ request.path }}" />
+          <select name="lang" onchange="this.form.submit()" aria-label="Language" style="min-width: 120px;">
+            {% for code, item in languages.items() %}
+            <option value="{{ code }}" {% if code == lang_code %}selected{% endif %}>{{ item.name }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>

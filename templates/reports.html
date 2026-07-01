@@ -1,0 +1,458 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-bg-wrap">
+  <div class="page-bg page-bg--reports"></div>
+  <div class="page-overlay page-overlay--reports"></div>
+
+  <div class="container page-container">
+    <div class="two-col" style="align-items:stretch; gap: 18px; min-height: calc(100vh - 82px); margin-left: 0;">
+      {% include 'partials/sidebar.html' %}
+
+      <main class="app-main">
+        <section class="card" style="background:linear-gradient(180deg, rgba(214,243,241,0.98) 0%, rgba(255,255,255,0.98) 68%, rgba(244,251,250,0.98) 100%); border:1px solid rgba(43,140,168,0.28); backdrop-filter: blur(10px); border-radius: 28px; padding: 16px 18px 18px; box-shadow:none; min-height: calc(100vh - 120px); max-height: calc(100vh - 120px); overflow-y:auto; overflow-x:hidden; scrollbar-width: thin; scrollbar-color: rgba(43,140,168,0.45) transparent;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap: 16px; flex-wrap:wrap; margin-bottom: 14px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="font-size:24px;"></div>
+              <div>
+                <h1 class="title" style="margin:0; font-size:24px;">{{ 'Energy Consumption Report' if lang_code == 'en' else 'Báo cáo tiêu thụ điện' }}</h1>
+                <div class="muted" style="margin-top:4px; font-size:14px;">{{ 'Track energy, charging efficiency, and export station reports' if lang_code == 'en' else 'Theo dõi điện năng, hiệu suất sạc và xuất báo cáo theo từng trạm' }}</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn ghost" type="button" style="padding:9px 14px; border-radius:10px;">{{ 'Export PDF' if lang_code == 'en' else 'Xuất PDF' }}</button>
+              <button id="print-report-btn" class="btn ghost" type="button" style="padding:9px 14px; border-radius:10px;">{{ 'Print report' if lang_code == 'en' else 'In báo cáo' }}</button>
+              <button class="btn ghost" type="button" style="padding:9px 14px; border-radius:10px;">{{ 'Excel' if lang_code == 'en' else 'Excel' }}</button>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:14px; margin-bottom:14px;">
+            {% set chart_cards = [
+              ('GHG Avoided', '+122%', '84,693 lbs'),
+              ('Gasoline Avoided', '+110%', '4,323 gallons'),
+              ('Electric Miles Provided', '+104%', '96,525 miles'),
+              ('Utilization', '-9%', '14 %')
+            ] if lang_code == 'en' else [
+              ('GHG tránh được', '+122%', '84,693 lbs'),
+              ('Xăng tránh được', '+110%', '4,323 gallons'),
+              ('Miles điện cung cấp', '+104%', '96,525 miles'),
+              ('Hiệu suất sử dụng', '-9%', '14 %')
+            ] %}
+            {% for title, trend, total in chart_cards %}
+            <div class="card report-chart-card" data-chart-title="{{ title }}" data-chart-kind="mini" style="background:#fff; border:1px solid #cfe8e3; border-radius:18px; padding:14px; min-height:260px; overflow:hidden; cursor:zoom-in;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;">
+                <div style="display:grid; gap:6px;">
+                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <div style="font-weight:800; font-size:16px; color:#18313d;">{{ title }}</div>
+                    <span class="badge" style="background:{% if trend.startswith('-') %}#fff3ea{% else %}#eef8ec{% endif %}; color:{% if trend.startswith('-') %}#f57c48{% else %}#4ca72c{% endif %}; border:1px solid {% if trend.startswith('-') %}#ffcfb2{% else %}#bfe2b5{% endif %};">{{ trend }}</span>
+                  </div>
+                  <div style="font-size:14px; font-weight:800; color:#18313d;">{{ total }}</div>
+                </div>
+              </div>
+              <svg viewBox="0 0 760 220" width="100%" height="190" preserveAspectRatio="none" style="display:block;">
+                <g stroke="#edf3f2" stroke-width="1">
+                  <line x1="40" y1="30" x2="740" y2="30"/><line x1="40" y1="80" x2="740" y2="80"/><line x1="40" y1="130" x2="740" y2="130"/><line x1="40" y1="180" x2="740" y2="180"/>
+                </g>
+                <line x1="40" y1="190" x2="740" y2="190" stroke="#cbd8dd" stroke-width="1.2"/>
+                {% if title == 'Utilization' or title == 'Hiệu suất sử dụng' %}
+                {% set util_bars = [45, 62, 38, 75, 52, 84, 49, 70, 92, 58, 41, 76, 63, 88, 55, 68, 47, 74, 60, 86, 53, 79, 44, 90, 57, 65, 48, 82] %}
+                {% for h in util_bars %}
+                {% set x = 44 + loop.index0 * 24 %}
+                <rect x="{{ x }}" y="{{ 190 - h }}" width="16" height="{{ h }}" fill="#2EB1A3" opacity="0.95" shape-rendering="crispEdges"/>
+                {% endfor %}
+                <text x="46" y="63" fill="#f57c48" font-size="12" font-weight="700">Congestion</text>
+                <line x1="46" y1="70" x2="740" y2="70" stroke="#ffcfb2" stroke-width="2" stroke-dasharray="4 4"/>
+                {% else %}
+                {% set bars = [110, 70, 140, 90, 130, 160, 105, 175, 95, 150, 110, 145, 80, 170, 115, 155, 90, 140, 125, 165, 100, 150, 88, 172, 92, 130, 118, 160] %}
+                {% for h in bars %}
+                {% set x = 44 + loop.index0 * 24 %}
+                <rect x="{{ x }}" y="{{ 190 - h }}" width="16" height="{{ h }}" fill="#2EB1A3" opacity="0.95" shape-rendering="crispEdges"/>
+                {% endfor %}
+                {% endif %}
+              </svg>
+            </div>
+            {% endfor %}
+          </div>
+
+          {% set report_rows = [
+            ('Volterra-1', 'Solar', 'Fast charging', '1680 kWh', '14', '92%', 'charging', 'Charging'),
+            ('Volterra-2', 'BESS', 'Slow charging', '1540 kWh', '12', '88%', 'charging', 'Charging'),
+            ('Volterra-3', 'Solar + BESS', 'Fast charging', '1890 kWh', '16', '79%', 'charging', 'Charging'),
+            ('Volterra-4', 'Grid', 'Slow charging', '2010 kWh', '18', '74%', 'charging', 'Charging'),
+            ('Volterra-5', 'Solar', 'Slow charging', '980 kWh', '7', '41%', 'offline', 'Offline'),
+            ('Volterra-10', 'BESS', 'Fast charging', '1120 kWh', '9', '82%', 'charging', 'Charging'),
+            ('Volterra-11', 'Solar', 'Slow charging', '2140 kWh', '19', '100%', 'reserved', 'Reserved'),
+            ('Volterra-12', 'Solar + BESS', 'Fast charging', '1760 kWh', '13', '76%', 'charging', 'Charging'),
+            ('Volterra-15', 'BESS', 'Fast charging', '2280 kWh', '20', '100%', 'reserved', 'Reserved'),
+            ('Volterra-16', 'Grid', 'Slow charging', '2330 kWh', '21', '100%', 'reserved', 'Reserved'),
+            ('Volterra-17', 'Solar', 'Fast charging', '2205 kWh', '20', '100%', 'reserved', 'Reserved')
+          ] %}
+          
+        </section>
+      </main>
+    </div>
+  </div>
+</div>
+
+<div id="print-modal" style="display:none; position:fixed; inset:0; z-index:90; background:rgba(10,18,24,0.52); backdrop-filter: blur(10px); align-items:center; justify-content:center; padding:18px;">
+  <div style="width:min(340px, 100%); background:#fff; border:1px solid #d9d9d9; border-radius:8px; box-shadow:0 18px 60px rgba(0,0,0,0.25); overflow:hidden;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px 16px 10px; border-bottom:1px solid #ececec;">
+      <div style="font-size:20px; font-weight:800; color:#333;">{{ 'Download Data' if lang_code == 'en' else 'Tải dữ liệu' }}</div>
+      <button id="print-modal-close" type="button" aria-label="Close" style="border:none; background:transparent; font-size:34px; line-height:1; color:#6f6f6f; cursor:pointer; padding:0 2px;">×</button>
+    </div>
+    <div style="padding:14px; display:grid; gap:12px;">
+      <div style="border:1px solid #cfcfcf; border-radius:6px; padding:10px 10px 8px; background:#fff; position:relative;">
+        <div style="font-size:12px; font-weight:700; color:#777; margin-bottom:8px;">{{ 'Download Type' if lang_code == 'en' else 'Loại tải' }}</div>
+        <button id="download-type-toggle" type="button" style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; border:none; background:#fff; padding:0; cursor:pointer;">
+          <div id="download-type-selected" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #2f73ff; color:#2f73ff; background:#eaf1ff; font-size:13px; font-weight:700;">EV Charging</span>
+            <span style="font-size:16px; color:#444;">{{ 'Reporting' if lang_code == 'en' else 'Báo cáo' }}</span>
+          </div>
+          <span id="download-type-chevron" style="color:#6e6e6e; font-size:22px; line-height:1; transition:transform .2s ease;">▾</span>
+        </button>
+        <div id="download-type-menu" style="display:none; position:absolute; top:100%; left:0; right:0; margin-top:6px; background:#fff; border:1px solid #cfcfcf; border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:5; overflow:hidden;">
+          <button type="button" class="download-type-option" data-label="Reporting" data-chip="EV Charging" style="width:100%; display:flex; align-items:center; gap:10px; padding:10px 12px; border:none; background:#fff; text-align:left; cursor:pointer; font-size:16px; color:#444;"><span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #2f73ff; color:#2f73ff; background:#eaf1ff; font-size:13px; font-weight:700;">EV Charging</span><span>Reporting</span></button>
+          <button type="button" class="download-type-option" data-label="Stations" data-chip="EV Charging" style="width:100%; display:flex; align-items:center; gap:10px; padding:10px 12px; border:none; background:#fff; text-align:left; cursor:pointer; font-size:16px; color:#444;"><span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #2f73ff; color:#2f73ff; background:#eaf1ff; font-size:13px; font-weight:700;">EV Charging</span><span>Stations</span></button>
+          <button type="button" class="download-type-option" data-label="Sessions" data-chip="EV Charging" style="width:100%; display:flex; align-items:center; gap:10px; padding:10px 12px; border:none; background:#fff; text-align:left; cursor:pointer; font-size:16px; color:#444;"><span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #2f73ff; color:#2f73ff; background:#eaf1ff; font-size:13px; font-weight:700;">EV Charging</span><span>Sessions</span></button>
+          <button type="button" class="download-type-option" data-label="Interval" data-chip="EV Charging" style="width:100%; display:flex; align-items:center; gap:10px; padding:10px 12px; border:none; background:#fff; text-align:left; cursor:pointer; font-size:16px; color:#444;"><span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #2f73ff; color:#2f73ff; background:#eaf1ff; font-size:13px; font-weight:700;">EV Charging</span><span>Interval</span></button>
+          <button type="button" class="download-type-option" data-label="Station Status" data-chip="EV Charging" style="width:100%; display:flex; align-items:center; gap:10px; padding:10px 12px; border:none; background:#fff; text-align:left; cursor:pointer; font-size:16px; color:#444;"><span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #2f73ff; color:#2f73ff; background:#eaf1ff; font-size:13px; font-weight:700;">EV Charging</span><span>Station Status</span></button>
+          <button type="button" class="download-type-option" data-label="Interval" data-chip="Solar" style="width:100%; display:flex; align-items:center; gap:10px; padding:10px 12px; border:none; background:#fff; text-align:left; cursor:pointer; font-size:16px; color:#444;"><span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #5fb83d; color:#5fb83d; background:#eef8e9; font-size:13px; font-weight:700;">Solar</span><span>Interval</span></button>
+          <button type="button" class="download-type-option" data-label="Interval" data-chip="Storage" style="width:100%; display:flex; align-items:center; gap:10px; padding:10px 12px; border:none; background:#fff; text-align:left; cursor:pointer; font-size:16px; color:#444;"><span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #ff8b2d; color:#ff8b2d; background:#fff2e5; font-size:13px; font-weight:700;">Storage</span><span>Interval</span></button>
+        </div>
+      </div>
+
+      <div style="border:1px solid #cfcfcf; border-radius:6px; padding:10px 10px 8px; background:#fff;">
+        <div style="font-size:12px; font-weight:700; color:#777; margin-bottom:8px;">{{ 'Date Range' if lang_code == 'en' else 'Khoảng ngày' }}</div>
+        <button type="button" style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; border:none; background:#fff; padding:0; cursor:pointer;">
+          <div style="font-size:18px; color:#444; font-weight:500;">01/01-04/01</div>
+          <span style="color:#6e6e6e; font-size:22px; line-height:1;">▾</span>
+        </button>
+      </div>
+
+      <div style="padding-top:2px;">
+        <div style="font-size:20px; font-weight:800; color:#333; margin:2px 0 10px;">{{ 'Metrics' if lang_code == 'en' else 'Chỉ số' }}</div>
+        <div style="display:grid; gap:10px; max-height:220px; overflow:auto; padding-right:4px;">
+          {% set metrics = [
+            ('Timing detail (6)', True),
+            ('Energy detail (4)', True),
+            ('GHG detail (3)', True),
+            ('Financial detail (3)', True),
+            ('Situation Performance (6)', False)
+          ] %}
+          {% for label, checked in metrics %}
+          <label style="display:flex; align-items:center; gap:10px; font-size:16px; color:#333; font-weight:600; cursor:pointer;">
+            <span style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:4px; border:1.8px solid {% if checked %}#2f73ff{% else %}#bdbdbd{% endif %}; background:{% if checked %}#2f73ff{% else %}#f2f2f2{% endif %}; color:#fff; font-size:13px; font-weight:900; line-height:1;">{% if checked %}✓{% else %}–{% endif %}</span>
+            <input type="checkbox" {% if checked %}checked{% endif %} style="display:none;">
+            <span>{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding-top:4px;">
+        <button id="print-modal-cancel" class="btn ghost" type="button" style="padding:8px 14px; border-radius:6px; border:1px solid #bdbdbd; background:#fff; color:#444; box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);">{{ 'Cancel' if lang_code == 'en' else 'Hủy' }}</button>
+        <button id="print-modal-download" class="btn primary" type="button" style="padding:10px 18px; border-radius:6px; background:#1f7af0; border:1px solid #1f7af0; color:#fff; font-weight:800; box-shadow:none; display:inline-flex; align-items:center; gap:8px;">
+          <span style="font-size:14px; line-height:1;">⬇</span>
+          <span>{{ 'Download' if lang_code == 'en' else 'Tải xuống' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="chart-modal" style="display:none; position:fixed; inset:0; z-index:80; background:rgba(10,18,24,0.62); backdrop-filter: blur(10px); align-items:center; justify-content:center; padding:18px;">
+  <div style="width:min(1280px, 100%); height:min(100vh, 980px); overflow:hidden; background:#fff; border:1px solid #cfe8e3; border-radius:24px; box-shadow:0 24px 80px rgba(0,0,0,0.28); padding:16px; display:flex; flex-direction:column;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; flex:0 0 auto;">
+      <div id="chart-modal-title" style="font-weight:800; font-size:22px; color:#18313d;"></div>
+      <button id="chart-modal-close" class="btn primary" type="button" style="padding:9px 14px; border-radius:10px;">{{ 'Close' if lang_code == 'en' else 'Đóng' }}</button>
+    </div>
+    <div id="chart-modal-body" style="display:grid; gap:14px; flex:1 1 auto; min-height:0;"></div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const isEn = {{ 'true' if lang_code == 'en' else 'false' }};
+    const modal = document.getElementById('chart-modal');
+    const modalTitle = document.getElementById('chart-modal-title');
+    const modalBody = document.getElementById('chart-modal-body');
+    const modalClose = document.getElementById('chart-modal-close');
+    const printModal = document.getElementById('print-modal');
+    const printModalClose = document.getElementById('print-modal-close');
+    const printModalCancel = document.getElementById('print-modal-cancel');
+    const printModalDownload = document.getElementById('print-modal-download');
+    const printReportBtn = document.getElementById('print-report-btn');
+    const downloadTypeToggle = document.getElementById('download-type-toggle');
+    const downloadTypeMenu = document.getElementById('download-type-menu');
+    const downloadTypeChevron = document.getElementById('download-type-chevron');
+    const downloadTypeSelected = document.getElementById('download-type-selected');
+    const chartCards = document.querySelectorAll('.report-chart-card');
+    let tooltipEl = null;
+
+    const miniCharts = {
+      'GHG Avoided': `
+        <svg viewBox="0 0 760 220" width="100%" height="230" preserveAspectRatio="none" style="display:block;">
+          <defs>
+            <linearGradient id="ghgMiniGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#2EB1A3" stop-opacity="0.98"/>
+              <stop offset="100%" stop-color="#2EB1A3" stop-opacity="0.55"/>
+            </linearGradient>
+            <filter id="ghgMiniShadow" x="-20%" y="-20%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#2EB1A3" flood-opacity="0.20"/>
+            </filter>
+          </defs>
+          <g stroke="#eef3f2" stroke-width="1">
+            <line x1="72" y1="40" x2="740" y2="40"/><line x1="72" y1="92" x2="740" y2="92"/><line x1="72" y1="144" x2="740" y2="144"/><line x1="72" y1="196" x2="740" y2="196"/>
+          </g>
+          <line x1="72" y1="196" x2="740" y2="196" stroke="#cbd8dd" stroke-width="1.2"/>
+          <g fill="#18313d" font-size="10" font-weight="700"><text x="24" y="200">0</text><text x="12" y="148">500</text><text x="2" y="96">1000</text><text x="2" y="44">1500</text></g>
+          ${[90, 56, 114, 72, 104, 128, 84, 140, 76, 120, 88, 116, 64, 136, 92, 124, 72, 112, 100, 132, 80, 120, 70, 138, 74, 104, 94, 128].map((h, i) => `<g filter="url(#ghgMiniShadow)"><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="url(#ghgMiniGrad)"/><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="0.8"/><title>Day ${i + 1}: ${Math.round(h * 12.8)} lbs</title></g>`).join('')}
+          ${['Nov 1','Nov 4','Nov 8','Nov 12','Nov 15','Nov 18','Nov 22','Nov 25'].map((d,i)=>`<text x="${92 + i*80}" y="214" fill="#18313d" font-size="10" font-weight="700">${d}</text>`).join('')}
+        </svg>`,
+      'Gasoline Avoided': `
+        <svg viewBox="0 0 760 220" width="100%" height="230" preserveAspectRatio="none" style="display:block;">
+          <defs>
+            <linearGradient id="gasMiniGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#2EB1A3" stop-opacity="0.98"/>
+              <stop offset="100%" stop-color="#2EB1A3" stop-opacity="0.55"/>
+            </linearGradient>
+            <filter id="gasMiniShadow" x="-20%" y="-20%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#2EB1A3" flood-opacity="0.20"/>
+            </filter>
+          </defs>
+          <g stroke="#eef3f2" stroke-width="1">
+            <line x1="72" y1="40" x2="740" y2="40"/><line x1="72" y1="92" x2="740" y2="92"/><line x1="72" y1="144" x2="740" y2="144"/><line x1="72" y1="196" x2="740" y2="196"/>
+          </g>
+          <line x1="72" y1="196" x2="740" y2="196" stroke="#cbd8dd" stroke-width="1.2"/>
+          <g fill="#18313d" font-size="10" font-weight="700"><text x="24" y="200">0</text><text x="12" y="148">500</text><text x="2" y="96">1000</text><text x="2" y="44">1500</text></g>
+          ${[80, 122, 55, 136, 98, 144, 70, 150, 108, 92, 130, 76, 140, 100, 128, 84, 146, 90, 120, 66, 138, 96, 112, 78, 148, 102, 86, 132].map((h, i) => `<g filter="url(#gasMiniShadow)"><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="url(#gasMiniGrad)"/><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="0.8"/><title>Day ${i + 1}: ${Math.round(h * 18.4)} gallons</title></g>`).join('')}
+          ${['Nov 1','Nov 4','Nov 8','Nov 12','Nov 15','Nov 18','Nov 22','Nov 25'].map((d,i)=>`<text x="${92 + i*80}" y="214" fill="#18313d" font-size="10" font-weight="700">${d}</text>`).join('')}
+        </svg>`,
+      'Electric Miles Provided': `
+        <svg viewBox="0 0 760 220" width="100%" height="230" preserveAspectRatio="none" style="display:block;">
+          <defs>
+            <linearGradient id="mileMiniGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#2EB1A3" stop-opacity="0.98"/>
+              <stop offset="100%" stop-color="#2EB1A3" stop-opacity="0.55"/>
+            </linearGradient>
+            <filter id="mileMiniShadow" x="-20%" y="-20%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#2EB1A3" flood-opacity="0.20"/>
+            </filter>
+          </defs>
+          <g stroke="#eef3f2" stroke-width="1">
+            <line x1="72" y1="40" x2="740" y2="40"/><line x1="72" y1="92" x2="740" y2="92"/><line x1="72" y1="144" x2="740" y2="144"/><line x1="72" y1="196" x2="740" y2="196"/>
+          </g>
+          <line x1="72" y1="196" x2="740" y2="196" stroke="#cbd8dd" stroke-width="1.2"/>
+          <g fill="#18313d" font-size="10" font-weight="700"><text x="24" y="200">0</text><text x="12" y="148">500</text><text x="2" y="96">1000</text><text x="2" y="44">1500</text></g>
+          ${[50, 170, 80, 90, 80, 160, 125, 75, 95, 150, 210, 185, 180, 122, 115, 155, 190, 140, 125, 165, 200, 150, 88, 178, 192, 130, 118, 160].map((h, i) => `<g filter="url(#mileMiniShadow)"><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="url(#mileMiniGrad)"/><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="0.8"/><title>Day ${i + 1}: ${Math.round(h * 8.1)} miles</title></g>`).join('')}
+          ${['Nov 1','Nov 4','Nov 8','Nov 12','Nov 15','Nov 18','Nov 22','Nov 25'].map((d,i)=>`<text x="${92 + i*80}" y="214" fill="#18313d" font-size="10" font-weight="700">${d}</text>`).join('')}
+        </svg>`,
+      'Utilization': `
+        <svg viewBox="0 0 760 220" width="100%" height="190" preserveAspectRatio="none" style="display:block;">
+          <g stroke="#edf3f2" stroke-width="1">
+            <line x1="40" y1="30" x2="740" y2="30"/><line x1="40" y1="80" x2="740" y2="80"/><line x1="40" y1="130" x2="740" y2="130"/><line x1="40" y1="180" x2="740" y2="180"/>
+          </g>
+          <line x1="40" y1="70" x2="740" y2="70" stroke="#ffcfb2" stroke-width="2" stroke-dasharray="4 4"/>
+          <text x="46" y="63" fill="#f57c48" font-size="12" font-weight="700">Congestion</text>
+          <path d="M40 165 L60 168 L80 150 L100 160 L120 140 L140 170 L160 120 L180 174 L200 110 L220 178 L240 124 L260 160 L280 98 L300 145 L320 176 L340 104 L360 170 L380 118 L400 156 L420 92 L440 150 L460 175 L480 100 L500 168 L520 126 L540 152 L560 96 L580 180 L600 108 L620 162 L640 130 L660 92 L680 150 L700 176 L720 118 L740 184" fill="none" stroke="#2EB1A3" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`
+    };
+
+    const bigCharts = {
+      'GHG Avoided': `
+        <svg viewBox="0 0 760 220" width="100%" height="680" preserveAspectRatio="none" style="display:block;">
+          <defs>
+            <linearGradient id="ghgBigGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#2EB1A3" stop-opacity="0.98"/>
+              <stop offset="100%" stop-color="#2EB1A3" stop-opacity="0.55"/>
+            </linearGradient>
+            <filter id="ghgBigShadow" x="-20%" y="-20%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#2EB1A3" flood-opacity="0.18"/>
+            </filter>
+          </defs>
+          <g stroke="#edf3f2" stroke-width="1.2">
+            <line x1="72" y1="40" x2="740" y2="40"/><line x1="72" y1="92" x2="740" y2="92"/><line x1="72" y1="144" x2="740" y2="144"/><line x1="72" y1="196" x2="740" y2="196"/>
+          </g>
+          <line x1="72" y1="196" x2="740" y2="196" stroke="#cbd8dd" stroke-width="1.4"/>
+          <g fill="#18313d" font-size="11" font-weight="700"><text x="22" y="200">0</text><text x="8" y="148">500</text><text x="0" y="96">1000</text><text x="0" y="44">1500</text></g>
+          <g fill="#18313d" font-size="11" font-weight="700">${['Nov 1','Nov 4','Nov 8','Nov 12','Nov 15','Nov 18','Nov 22','Nov 25'].map((d,i)=>`<text x="${84 + i*80}" y="214">${d}</text>`).join('')}</g>
+          ${[92, 64, 118, 76, 110, 132, 90, 146, 82, 124, 94, 120, 70, 140, 98, 128, 78, 116, 104, 138, 86, 126, 74, 144, 80, 108, 96, 130].map((h, i) => `<g class="bar-hit" data-bar-date="Tue, Nov ${i + 1}" data-bar-series="GHG Avoided" data-bar-value="${(h * 12.8).toFixed(1)}" filter="url(#ghgBigShadow)"><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="url(#ghgBigGrad)"/><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="0.8"/></g>`).join('')}
+          <text x="16" y="120" fill="#18313d" font-size="12" font-weight="700" transform="rotate(-90 16 120)">lbs</text>
+        </svg>`,
+      'Gasoline Avoided': `
+        <svg viewBox="0 0 760 220" width="100%" height="680" preserveAspectRatio="none" style="display:block;">
+          <defs>
+            <linearGradient id="gasBigGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#2EB1A3" stop-opacity="0.98"/>
+              <stop offset="100%" stop-color="#2EB1A3" stop-opacity="0.55"/>
+            </linearGradient>
+            <filter id="gasBigShadow" x="-20%" y="-20%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#2EB1A3" flood-opacity="0.18"/>
+            </filter>
+          </defs>
+          <g stroke="#edf3f2" stroke-width="1.2">
+            <line x1="72" y1="40" x2="740" y2="40"/><line x1="72" y1="92" x2="740" y2="92"/><line x1="72" y1="144" x2="740" y2="144"/><line x1="72" y1="196" x2="740" y2="196"/>
+          </g>
+          <line x1="72" y1="196" x2="740" y2="196" stroke="#cbd8dd" stroke-width="1.4"/>
+          <g fill="#18313d" font-size="11" font-weight="700"><text x="22" y="200">0</text><text x="8" y="148">500</text><text x="0" y="96">1000</text><text x="0" y="44">1500</text></g>
+          <g fill="#18313d" font-size="11" font-weight="700">${['Nov 1','Nov 4','Nov 8','Nov 12','Nov 15','Nov 18','Nov 22','Nov 25'].map((d,i)=>`<text x="${84 + i*80}" y="214">${d}</text>`).join('')}</g>
+          ${[82, 118, 60, 130, 96, 136, 72, 142, 104, 88, 124, 78, 134, 98, 120, 84, 140, 90, 112, 66, 132, 94, 108, 80, 144, 100, 86, 126].map((h, i) => `<g class="bar-hit" data-bar-label="Nov ${i + 1}" data-bar-value="${Math.round(h * 18.4)} gallons" filter="url(#gasBigShadow)"><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="url(#gasBigGrad)"/><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="0.8"/></g>`).join('')}
+          <text x="16" y="120" fill="#5f7782" font-size="12" font-weight="700" transform="rotate(-90 16 120)">gallons</text>
+        </svg>`,
+      'Electric Miles Provided': `
+        <svg viewBox="0 0 760 220" width="100%" height="680" preserveAspectRatio="none" style="display:block;">
+          <defs>
+            <linearGradient id="mileBigGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#2EB1A3" stop-opacity="0.98"/>
+              <stop offset="100%" stop-color="#2EB1A3" stop-opacity="0.55"/>
+            </linearGradient>
+            <filter id="mileBigShadow" x="-20%" y="-20%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#2EB1A3" flood-opacity="0.18"/>
+            </filter>
+          </defs>
+          <g stroke="#edf3f2" stroke-width="1.2">
+            <line x1="72" y1="40" x2="740" y2="40"/><line x1="72" y1="92" x2="740" y2="92"/><line x1="72" y1="144" x2="740" y2="144"/><line x1="72" y1="196" x2="740" y2="196"/>
+          </g>
+          <line x1="72" y1="196" x2="740" y2="196" stroke="#cbd8dd" stroke-width="1.4"/>
+          <g fill="#18313d" font-size="11" font-weight="700"><text x="22" y="200">0</text><text x="8" y="148">500</text><text x="0" y="96">1000</text><text x="0" y="44">1500</text></g>
+          <g fill="#18313d" font-size="11" font-weight="700">${['Nov 1','Nov 4','Nov 8','Nov 12','Nov 15','Nov 18','Nov 22','Nov 25'].map((d,i)=>`<text x="${84 + i*80}" y="214">${d}</text>`).join('')}</g>
+          ${[54, 160, 84, 96, 82, 156, 124, 78, 98, 148, 206, 182, 176, 126, 118, 152, 188, 144, 130, 168, 202, 154, 92, 176, 190, 136, 120, 158].map((h, i) => `<g class="bar-hit" data-bar-label="Nov ${i + 1}" data-bar-value="${Math.round(h * 8.1)} miles" filter="url(#mileBigShadow)"><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="url(#mileBigGrad)"/><rect x="${72 + i * 24}" y="${196 - h}" width="12" height="${h}" rx="5" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="0.8"/></g>`).join('')}
+          <text x="16" y="120" fill="#5f7782" font-size="12" font-weight="700" transform="rotate(-90 16 120)">miles</text>
+        </svg>`,
+      'Utilization': `
+        <svg viewBox="0 0 1400 760" width="100%" height="680" preserveAspectRatio="none" style="display:block;">
+          <g stroke="#edf3f2" stroke-width="1.2">
+            <line x1="80" y1="80" x2="1320" y2="80"/><line x1="80" y1="200" x2="1320" y2="200"/><line x1="80" y1="320" x2="1320" y2="320"/><line x1="80" y1="440" x2="1320" y2="440"/><line x1="80" y1="560" x2="1320" y2="560"/><line x1="80" y1="680" x2="1320" y2="680"/>
+          </g>
+          <line x1="80" y1="260" x2="1320" y2="260" stroke="#ffcfb2" stroke-width="3" stroke-dasharray="8 8"/>
+          <path d="M80 540 L140 560 L200 500 L260 530 L320 360 L380 620 L440 380 L500 650 L560 340 L620 610 L680 410 L740 530 L800 320 L860 450 L920 620 L980 350 L1040 660 L1100 390 L1160 560 L1220 500 L1280 340 L1320 640" fill="none" stroke="#2EB1A3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <g fill="#18313d" font-size="11" font-weight="700"><text x="74" y="700">Jan</text><text x="214" y="700">Feb</text><text x="354" y="700">Mar</text><text x="494" y="700">Apr</text><text x="634" y="700">May</text><text x="774" y="700">Jun</text><text x="914" y="700">Jul</text><text x="1054" y="700">Aug</text><text x="1194" y="700">Sep</text></g>
+          <text x="16" y="120" fill="#f57c48" font-size="12" font-weight="700" transform="rotate(-90 16 120)">Congestion</text>
+        </svg>`
+    };
+
+    function ensureTooltip() {
+      if (!tooltipEl) {
+        tooltipEl = document.createElement('div');
+        tooltipEl.style.cssText = `
+          position:fixed;
+          z-index:120;
+          display:none;
+          pointer-events:none;
+          background:#fff;
+          border:1px solid #cfcfcf;
+          border-radius:6px;
+          box-shadow:0 2px 8px rgba(0,0,0,0.14);
+          color:#222;
+          min-width:140px;
+          overflow:hidden;
+          font-family:inherit;
+        `;
+        tooltipEl.innerHTML = `
+          <div class="tooltip-date" style="padding:7px 12px 4px; font-size:14px; font-weight:700; color:#333;">Tue, Nov 14</div>
+          <div style="height:1px; background:#d4d4d4; margin:0 12px;"></div>
+          <div class="tooltip-row" style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding:5px 12px 8px; font-size:13px;">
+            <span class="tooltip-label" style="color:#4c4c4c; font-weight:500;">GHG Avoided</span>
+            <span class="tooltip-value" style="color:#236d83; font-weight:800; font-size:18px; line-height:1;">1843.7</span>
+          </div>
+        `;
+        document.body.appendChild(tooltipEl);
+      }
+      return tooltipEl;
+    }
+
+    function setTooltipContent(tip, label, value, dateText) {
+      const dateEl = tip.querySelector('.tooltip-date');
+      const labelEl = tip.querySelector('.tooltip-label');
+      const valueEl = tip.querySelector('.tooltip-value');
+      if (dateEl) dateEl.textContent = dateText || '';
+      if (labelEl) labelEl.textContent = label || '';
+      if (valueEl) valueEl.textContent = value || '';
+    }
+
+    function wireBarHover(scope) {
+      const tip = ensureTooltip();
+      scope.querySelectorAll('.bar-hit').forEach((bar) => {
+        const rect = bar.querySelector('rect');
+        const dateText = bar.dataset.barDate || bar.dataset.barLabel || '';
+        bar.addEventListener('mouseenter', () => {
+          setTooltipContent(tip, bar.dataset.barSeries || '', bar.dataset.barValue || '', dateText);
+          tip.style.display = 'block';
+          if (rect) rect.setAttribute('stroke', '#1f7f75');
+          if (rect) rect.setAttribute('stroke-width', '2');
+        });
+        bar.addEventListener('mousemove', (e) => {
+          tip.style.left = `${e.clientX + 14}px`;
+          tip.style.top = `${e.clientY + 14}px`;
+        });
+        bar.addEventListener('mouseleave', () => {
+          tip.style.display = 'none';
+          if (rect) rect.setAttribute('stroke', 'rgba(255,255,255,0.72)');
+          if (rect) rect.setAttribute('stroke-width', '0.8');
+        });
+        bar.addEventListener('click', () => {
+          scope.querySelectorAll('.bar-hit rect').forEach((r) => {
+            r.setAttribute('stroke', 'rgba(255,255,255,0.72)');
+            r.setAttribute('stroke-width', '0.8');
+          });
+          if (rect) {
+            rect.setAttribute('stroke', '#1f7f75');
+            rect.setAttribute('stroke-width', '2.2');
+          }
+          setTooltipContent(tip, bar.dataset.barSeries || '', bar.dataset.barValue || '', dateText);
+          tip.style.display = 'block';
+        });
+      });
+    }
+
+    function openChart(title) {
+      modalTitle.textContent = title || 'Chart';
+      modalBody.innerHTML = `<div class="card" style="border:1px solid #cfe8e3; border-radius:18px; padding:18px; height:100%; min-height:0; display:flex; align-items:center; justify-content:center;">${bigCharts[title] || '<div style="color:#5f7782;">' + (isEn ? 'Preview unavailable.' : 'Không có bản xem trước.') + '</div>'}</div>`;
+      modal.style.display = 'flex';
+      wireBarHover(modalBody);
+    }
+
+    function closeChart() { modal.style.display = 'none'; }
+
+    function openPrintModal() { printModal.style.display = 'flex'; }
+    function closePrintModal() { printModal.style.display = 'none'; }
+
+    function toggleDownloadMenu(forceOpen) {
+      const open = typeof forceOpen === 'boolean' ? forceOpen : downloadTypeMenu.style.display === 'none';
+      downloadTypeMenu.style.display = open ? 'block' : 'none';
+      downloadTypeChevron.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+
+    downloadTypeToggle.addEventListener('click', () => toggleDownloadMenu());
+    document.querySelectorAll('.download-type-option').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const chip = btn.dataset.chip || '';
+        const label = btn.dataset.label || '';
+        downloadTypeSelected.innerHTML = chip === 'Solar'
+          ? '<span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #5fb83d; color:#5fb83d; background:#eef8e9; font-size:13px; font-weight:700;">Solar</span><span style="font-size:16px; color:#444;">' + label + '</span>'
+          : chip === 'Storage'
+            ? '<span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #ff8b2d; color:#ff8b2d; background:#fff2e5; font-size:13px; font-weight:700;">Storage</span><span style="font-size:16px; color:#444;">' + label + '</span>'
+            : '<span style="display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:24px; padding:0 10px; border-radius:14px; border:2px solid #2f73ff; color:#2f73ff; background:#eaf1ff; font-size:13px; font-weight:700;">EV Charging</span><span style="font-size:16px; color:#444;">' + label + '</span>';
+        toggleDownloadMenu(false);
+      });
+    });
+    document.addEventListener('click', (e) => {
+      if (!downloadTypeToggle.contains(e.target) && !downloadTypeMenu.contains(e.target)) toggleDownloadMenu(false);
+    });
+
+    chartCards.forEach((card) => {
+      const title = card.dataset.chartTitle;
+      const kind = card.dataset.chartKind;
+      if (miniCharts[title]) card.querySelector('svg').outerHTML = miniCharts[title];
+      card.addEventListener('click', () => openChart(title, kind));
+    });
+    modalClose.addEventListener('click', closeChart);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeChart(); });
+
+    printReportBtn.addEventListener('click', openPrintModal);
+    printModalClose.addEventListener('click', closePrintModal);
+    printModalCancel.addEventListener('click', closePrintModal);
+    printModalDownload.addEventListener('click', () => { closePrintModal(); window.print(); });
+    printModal.addEventListener('click', (e) => { if (e.target === printModal) closePrintModal(); });
+  })();
+</script>
+{% endblock %}

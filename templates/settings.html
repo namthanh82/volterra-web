@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-bg-wrap">
+  <div class="page-bg page-bg--settings"></div>
+  <div class="page-overlay page-overlay--settings"></div>
+
+  <div class="container page-container">
+    <div class="two-col" style="align-items:stretch; gap: 18px; min-height: calc(100vh - 82px); margin-left: 0;">
+      {% include 'partials/sidebar.html' %}
+
+      <main class="app-main">
+        <section class="card" style="background:linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(244,250,252,0.96) 100%); border:1px solid rgba(215,230,238,0.95); backdrop-filter: blur(10px); border-radius: 28px; padding: 18px; box-shadow:none; min-height: calc(100vh - 120px);">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap: 16px; flex-wrap:wrap; margin-bottom: 14px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div>
+                <h1 class="title" style="margin:0; font-size:22px;">{{ 'Settings' if lang_code == 'en' else 'Cài đặt' }}</h1>
+                <div class="muted" style="margin-top:4px; font-size:14px;">{{ 'Manage your account, system configuration, and logout' if lang_code == 'en' else 'Quản lý tài khoản, cấu hình hệ thống và đăng xuất' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:14px;">
+            <div class="card" style="background:linear-gradient(180deg, rgba(224,248,245,0.95) 0%, rgba(255,255,255,0.98) 100%); border:1px solid rgba(43,140,168,0.16); border-radius:18px; padding:16px;">
+              <div class="stat-label" style="font-size:13px; margin-bottom:8px;">{{ 'Account' if lang_code == 'en' else 'Tài khoản' }}</div>
+              <div style="font-weight:800; font-size:18px; color:#18313d; margin-bottom:6px;">{{ session.get('user_name', 'Manager') }}</div>
+              <div class="muted" style="font-size:13px; margin-bottom:14px;">{{ 'Logged in' if session.get('logged_in') and lang_code == 'en' else 'Đang đăng nhập' if session.get('logged_in') else 'Not logged in' if lang_code == 'en' else 'Chưa đăng nhập' }}</div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <a class="btn ghost" href="{{ url_for('logout') }}" style="padding:10px 16px; border-radius:10px;">{{ 'Logout' if lang_code == 'en' else 'Đăng xuất' }}</a>
+                <a class="btn ghost" href="{{ url_for('dashboard') }}" style="padding:10px 16px; border-radius:10px;">{{ 'Back to dashboard' if lang_code == 'en' else 'Quay lại bảng điều khiển' }}</a>
+              </div>
+            </div>
+
+            <div class="card" style="background:linear-gradient(180deg, rgba(224,248,245,0.95) 0%, rgba(255,255,255,0.98) 100%); border:1px solid rgba(43,140,168,0.16); border-radius:18px; padding:16px;">
+              <div class="stat-label" style="font-size:13px; margin-bottom:8px;">{{ 'System' if lang_code == 'en' else 'Hệ thống' }}</div>
+              <div style="display:grid; gap:10px; font-size:14px; color:#18313d;">
+                <div style="display:flex; justify-content:space-between; gap:10px;"><span>{{ 'Current language' if lang_code == 'en' else 'Ngôn ngữ hiện tại' }}</span><strong>{{ lang.name }}</strong></div>
+                <div style="display:flex; justify-content:space-between; gap:10px;"><span>{{ 'Session status' if lang_code == 'en' else 'Trạng thái phiên' }}</span><strong>{{ 'Active' if session.get('logged_in') else 'Inactive' if lang_code == 'en' else 'Đang hoạt động' if session.get('logged_in') else 'Không hoạt động' }}</strong></div>
+                <div style="display:flex; justify-content:space-between; gap:10px;"><span>{{ 'Environment' if lang_code == 'en' else 'Môi trường' }}</span><strong>Development</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="max-width: 1360px; padding-top: 6px; padding-bottom: 6px;">
+  <div class="grid" style="grid-template-columns: 1.1fr 0.9fr; gap: 12px; align-items: center; min-height: calc(100vh - 56px);">
+    <div class="card soft" style="padding: 0; overflow:hidden; position:relative; background: #f6fbfc; height: min(800px, calc(100vh - 72px)); min-height: 0; border-radius: 18px; display:flex; align-items:stretch; justify-content:stretch;">
+      <img src="{{ url_for('static', filename='images/Gemini_Generated_Image_434rgh434rgh434r.png') }}" alt="Volterra banner" style="width:100%; height:100%; object-fit:cover; display:block; flex:1 1 auto;" />
+    </div>
+
+    <div class="card" style="padding: 24px 22px 20px; min-height: 0; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; align-self: center; max-width: 520px; width: 100%; margin-left: auto; margin-right: 0; margin-top: 0; border-radius: 18px; background: #eef7fb; border: 1px solid rgba(47,143,87,0.18);">
+      <div style="display:flex; justify-content:center; margin-bottom: 4px; margin-top: 18px;">
+        <img src="{{ url_for('static', filename='images/LOGO - CTY VOLTERRA - FINAL-01.png') }}" alt="Volterra logo" style="max-width: 220px; width: 100%; height: auto; display:block;" />
+      </div>
+      <form method="post" style="margin-top: 6px; display:grid; gap:17px;">
+        <div>
+          <label class="label" style="color:#2EB1A3;">{{ 'Email' if lang_code == 'en' else 'Email' }}</label>
+          <input class="input" type="email" name="email" placeholder="manager@volterra.vn" style="height: 42px; background:#ffffff; border-color: rgba(47,143,87,0.18);" />
+        </div>
+        <div>
+          <label class="label" style="color:#2EB1A3;">{{ 'Password' if lang_code == 'en' else 'Mật khẩu' }}</label>
+          <input class="input" type="password" name="password" placeholder="••••••••" style="height: 42px; background:#ffffff; border-color: rgba(47,143,87,0.18);" />
+          <div style="margin-top:8px; text-align:right;">
+            <a href="#" style="font-size:13px; font-weight:700; color:#2EB1A3;">{{ 'Forgot password?' if lang_code == 'en' else 'Quên mật khẩu?' }}</a>
+          </div>
+        </div>
+        <button class="btn primary" type="submit" style="height: 44px; background:#2EB1A3;">{{ lang.login }}</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
